@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Main-Class: main.Main
+Class-Path: Engine.jar DTO.jar lib\javafx-sdk-22.0.2\lib\javafx.base.jar
+  lib\javafx-sdk-22.0.2\lib\javafx.controls.jar lib\javafx-sdk-22.0.2\li
+ b\javafx.fxml.jar lib\javafx-sdk-22.0.2\lib\javafx.graphics.jar lib\jav
+ afx-sdk-22.0.2\lib\javafx.media.jar lib\javafx-sdk-22.0.2\lib\javafx.sw
+ ing.jar lib\javafx-sdk-22.0.2\lib\javafx.web.jar lib\javafx-sdk-22.0.2\
+ lib\javafx-swt.jar lib\javafx-sdk-22.0.2\lib\javafx.properties lib\jaxb
+ -ri-4.0.5\mod\angus-activation.jar lib\jaxb-ri-4.0.5\mod\jakarta.activa
+ tion-api.jar lib\jaxb-ri-4.0.5\mod\jakarta.xml.bind-api.jar lib\jaxb-ri
+ -4.0.5\mod\jaxb-core.jar lib\jaxb-ri-4.0.5\mod\jaxb-impl.jar lib\jaxb-r
+ i-4.0.5\mod\jaxb-jxc.jar lib\jaxb-ri-4.0.5\mod\jaxb-xjc.jar
+

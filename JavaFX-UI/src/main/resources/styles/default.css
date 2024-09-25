@@ -1,0 +1,54 @@
+/* Background */
+.root {
+    -fx-background-color: #f8f3f3;
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: #c4c8ca;
+    -fx-text-fill: #000000;
+    -fx-font-size: 14px;
+    -fx-cursor: hand; /* Change cursor to hand */
+}
+
+/* Hover effect */
+.button:hover {
+    -fx-background-color: #a1a5a8;
+}
+
+/* Pressed effect */
+.button:pressed {
+    -fx-background-color: #7f8385;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.75), 5, 0, 0, 1);
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #000000;
+    -fx-font-family: "Verdana";
+    -fx-font-size: 14px;
+}
+
+
+/* MenuButtons */
+.menu-button {
+    -fx-background-color: #c4c8ca; /* Dark background for menu buttons */
+    -fx-text-fill: #ffffff;
+}
+
+/* Hover effect for MenuButtons */
+.menu-button:hover {
+    -fx-background-color: #a1a5a8;
+}
+
+
+/* MenuItems */
+.menu-item {
+    -fx-background-color: #c4c8ca;
+    -fx-text-fill: #ffffff;
+}
+
+/* Hover effect for MenuItems */
+.menu-item:hover {
+    -fx-background-color: #a1a5a8;
+}
