@@ -1,0 +1,62 @@
+.root {
+    -fx-background-color: #1e1e1e;
+}
+#mainBorderPane {
+    -fx-background-color: #1e1e1e; /* Dark background */
+}
+
+#vboxBottom{
+    -fx-background-color: #1e1e1e; /* Dark background */
+}
+
+/* Buttons */
+.button {
+    -fx-font-family: "Times New Roman";
+    -fx-background-color: #3c3c3c; /* Dark button */
+    -fx-text-fill: #ffffff; /* Light text */
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+
+/* Hover effect for buttons */
+.button:hover {
+    -fx-background-color: #555555; /* Slightly lighter on hover */
+}
+
+/* Pressed effect for buttons */
+.button:pressed {
+    -fx-background-color: #2e2e2e; /* Darker when pressed */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.75), 5, 0, 0, 1);
+}
+
+
+/* MenuButtons */
+.menu-button {
+    -fx-background-color: #3c3c3c; /* Dark background for menu buttons */
+    -fx-text-fill: #ffffff;
+}
+
+/* Hover effect for MenuButtons */
+.menu-button:hover {
+    -fx-background-color: #555555;
+}
+
+
+/* MenuItems */
+.menu-item {
+    -fx-background-color: #3c3c3c;
+    -fx-text-fill: #ffffff;
+}
+
+/* Hover effect for MenuItems */
+.menu-item:hover {
+    -fx-background-color: #555555;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #ffffff; /* Light text for dark mode */
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 16px;
+}

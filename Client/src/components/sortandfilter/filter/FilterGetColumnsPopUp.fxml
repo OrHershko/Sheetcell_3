@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sortandfilter.filter.FilterGetColumnsPopUpController">
+   <content>
+      <VBox fx:id="filterGetColumnsPopUp" maxHeight="-Infinity" maxWidth="-Infinity">
+         <children>
+            <HBox spacing="10.0">
+               <children>
+                  <Label text="Filter by:" />
+                  <ChoiceBox fx:id="columnsChoiceBox" minHeight="-Infinity" minWidth="-Infinity" />
+                  <ListView fx:id="valuesListView" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="200.0" />
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <Button fx:id="addFilterColumnButton" mnemonicParsing="false" onMouseClicked="#addColumnToFilterOnClick" text="Add another filter column">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="FilterButton" mnemonicParsing="false" onMouseClicked="#filterOnClick" text="Filter">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="300.0" right="20.0" top="20.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </content>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</ScrollPane>

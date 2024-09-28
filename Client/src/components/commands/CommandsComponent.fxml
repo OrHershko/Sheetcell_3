@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="commandsComponent" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.commands.CommandsComponentController">
+   <children>
+      <Label text="Commands" />
+      <Button fx:id="setRowHeightButton" mnemonicParsing="false" onMouseClicked="#setRowsHeightOnClick" text="Set Row Height" />
+      <Button fx:id="setColWidthButton" mnemonicParsing="false" onMouseClicked="#setColsWidthOnClick" text="Set Column Width" />
+      <Button fx:id="setColAlignmentButton" mnemonicParsing="false" onMouseClicked="#setColsAlignmentOnClick" text="Set Column Alignment" />
+      <Button fx:id="designCell" mnemonicParsing="false" onMouseClicked="#designCellOnClick" text="Design Cell" />
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</VBox>

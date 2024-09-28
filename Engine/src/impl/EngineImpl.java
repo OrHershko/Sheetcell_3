@@ -10,6 +10,7 @@ import generated.STLSheet;
 import impl.cell.Cell;
 import impl.cell.value.*;
 import impl.sheet.Sheet;
+import impl.sheet.SheetData;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -19,7 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EngineImpl implements Engine {
-    private static Sheet currentSheet;
+    private Sheet currentSheet;
+    private List<Sheet> sheetsInMemory = new ArrayList<>();
     private final DTOFactory DTOFactory;
     private final String JAXB_XML_PACKAGE_NAME = "generated";
     private final int MAX_NUM_OF_ROWS = 50;
@@ -33,8 +35,8 @@ public class EngineImpl implements Engine {
     public void loadFile(String filePath) throws IOException {
         STLSheet currentSTLSheet;
         checkIfFilePathValid(filePath);
-        try{
-            currentSTLSheet = buildSTLSheetFromXML(filePath);
+        try (InputStream inputStream = new FileInputStream(filePath)){
+            currentSTLSheet = buildSTLSheetFromXML(inputStream);
         }
         catch (JAXBException e){
             throw new RuntimeException("Error: The file is not in the correct format.");
@@ -42,6 +44,34 @@ public class EngineImpl implements Engine {
         buildSheetFromSTLSheet(currentSTLSheet);
         Sheet.clearPreviousVersions();
     }
+
+    @Override
+    public void loadFile(InputStream inputStream) {
+        STLSheet currentSTLSheet;
+        try {
+            currentSTLSheet = buildSTLSheetFromXML(inputStream);
+        } catch (JAXBException e) {
+            throw new RuntimeException("Error: The file is not in the correct format.");
+        }
+        buildSheetFromSTLSheet(currentSTLSheet);
+        Sheet.clearPreviousVersions();
+    }
+
+    @Override
+    public void loadFile(InputStream inputStream, String username) {
+        STLSheet currentSTLSheet;
+        try {
+            currentSTLSheet = buildSTLSheetFromXML(inputStream);
+        } catch (JAXBException e) {
+            throw new RuntimeException("Error: The file is not in the correct format.");
+        }
+        buildSheetFromSTLSheet(currentSTLSheet);
+        currentSheet.setUsernameOfOwner(username);
+        Sheet.clearPreviousVersions();
+    }
+
+
+
 
     private void checkIfFilePathValid(String filePath) throws FileNotFoundException, FileNotXMLException {
         File file = new File(filePath);
@@ -53,12 +83,19 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private STLSheet buildSTLSheetFromXML(String filePath)throws IOException, JAXBException{
-        InputStream inputStream = new FileInputStream(filePath);
+//    private STLSheet buildSTLSheetFromXML(String filePath)throws IOException, JAXBException{
+//        InputStream inputStream = new FileInputStream(filePath);
+//        JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);
+//        Unmarshaller unmarshaller = jc.createUnmarshaller();
+//        return (STLSheet) unmarshaller.unmarshal(inputStream);
+//    }
+
+    private STLSheet buildSTLSheetFromXML(InputStream inputStream) throws JAXBException {
         JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         return (STLSheet) unmarshaller.unmarshal(inputStream);
     }
+
 
 
     private void buildSheetFromSTLSheet(STLSheet currentSTLSheet) {
@@ -71,6 +108,7 @@ public class EngineImpl implements Engine {
         currentSheet.setRowHeight(currentSTLSheet.getSTLLayout().getSTLSize().getRowsHeightUnits());
         currentSheet.setActiveCells(currentSTLSheet.getSTLCells().getSTLCell());
         currentSheet.setRangesFromFile(currentSTLSheet.getSTLRanges());
+        sheetsInMemory.add(currentSheet);
     }
 
     @Override
@@ -457,4 +495,22 @@ public class EngineImpl implements Engine {
 
         return DTOFactory.createSheetDTO(alternativeSheet);
     }
+
+    @Override
+    public List<SheetData> getAllSheetsData() {
+        return sheetsInMemory.stream()
+                .map(sheet -> new SheetData(sheet.getUsernameOfOwner(), sheet.getNumOfRows() + "x" + sheet.getNumOfCols(), String.valueOf(sheet.getActiveCells().size()), "Owner"))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public SheetData getSheetData(String sheetName) {
+        Sheet sheet = sheetsInMemory.stream()
+                .filter(s -> s.getName().equals(sheetName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Error: Sheet with name " + sheetName + " not found."));
+
+        return new SheetData(sheet.getUsernameOfOwner(), sheet.getNumOfRows() + "x" + sheet.getNumOfCols(), String.valueOf(sheet.getActiveCells().size()), "Owner");
+    }
+
 }

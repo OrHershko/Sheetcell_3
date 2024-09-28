@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<ScrollPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sortandfilter.GetRangePopUpController">
+   <content>
+      <VBox fx:id="SortGetRangePopUp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#nextButtonOnClick">
+         <children>
+            <Label fx:id="operationLabel" text="Please enter a range to sort:">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </Label>
+            <HBox spacing="10.0">
+               <children>
+                  <Label text="Enter top-left cell (e.g., A3):" />
+                  <TextField fx:id="topLeftTextBox" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <HBox spacing="10.0">
+               <children>
+                  <Label text="Enter bottom-right cell (e.g., D4):" />
+                  <TextField fx:id="bottomRightTextBox" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <Button fx:id="nextButton" alignment="TOP_LEFT" mnemonicParsing="false" onMouseClicked="#nextButtonOnClick" text="Next">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="300.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

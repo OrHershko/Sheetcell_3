@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="tablesArea" alignment="TOP_CENTER" prefHeight="500.0" prefWidth="582.0" spacing="10.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.tables.TablesAreaController">
+   <children>
+      <Button fx:id="loadFileButton" mnemonicParsing="false" onMouseClicked="#loadFileOnClick" text="Load Sheet File">
+         <VBox.margin>
+            <Insets right="400.0" />
+         </VBox.margin>
+      </Button>
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+         <children>
+            <TableView fx:id="sheetsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+               <columns>
+                  <TableColumn fx:id="usernameColumn" minWidth="-Infinity" prefWidth="100.0" text="Username" />
+                  <TableColumn fx:id="sheetNameColumn" minWidth="-Infinity" prefWidth="120.0" text="Sheet Name" />
+                  <TableColumn fx:id="sheetSizeColumn" minWidth="-Infinity" prefWidth="100.0" text="Sheet Size" />
+                  <TableColumn fx:id="permissionTypeColumn" minWidth="-Infinity" prefWidth="130.0" text="Premission Type" />
+               </columns>
+            </TableView>
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </AnchorPane>
+      <AnchorPane layoutX="60.0" layoutY="56.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+         <children>
+            <TableView fx:id="permissionsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+               <columns>
+                  <TableColumn fx:id="permissionUsernameColumn" minWidth="-Infinity" prefWidth="100.0" text="Username" />
+                  <TableColumn fx:id="permissionTypeColumn2" minWidth="-Infinity" prefWidth="120.0" text="Premission Type" />
+                  <TableColumn fx:id="permissionStatusColumn" minWidth="-Infinity" prefWidth="130.0" text="Premission Status" />
+               </columns>
+            </TableView>
+         </children>
+      </AnchorPane>
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" top="30.0" />
+   </padding>
+</VBox>

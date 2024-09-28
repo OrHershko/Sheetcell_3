@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane fx:id="scrollPane" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sortandfilter.sort.SortGetColumnsPopUpController">
+   <content>
+      <VBox fx:id="sortGetColumnsPopUp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
+         <children>
+            <HBox spacing="10.0">
+               <children>
+                  <Label text="Sort by:" />
+                  <ChoiceBox fx:id="columnsChoiceBox" />
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <Button fx:id="addSortColumnButton" mnemonicParsing="false" onMouseClicked="#addColumnToSortOnClick" text="Add another sort column">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="sortButton" mnemonicParsing="false" onMouseClicked="#sortOnClick" text="Sort">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="180.0" right="20.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

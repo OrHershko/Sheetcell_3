@@ -23,6 +23,7 @@ public class Sheet implements Serializable {
     private int changedCellsCount = 0;
     private final static Map<Integer,Sheet> previousVersions = new HashMap<>();
     private final Map<String, Range> ranges = new HashMap<>();
+    private String usernameOfOwner;
 
 
     @Override
@@ -37,6 +38,14 @@ public class Sheet implements Serializable {
         cloneActiveCellsMap(newSheet);
         cloneRangesMap(newSheet);
         return newSheet;
+    }
+
+    public void setUsernameOfOwner(String usernameOfOwner) {
+        this.usernameOfOwner = usernameOfOwner;
+    }
+
+    public String getUsernameOfOwner() {
+        return usernameOfOwner;
     }
 
     private void cloneActiveCellsMap(Sheet newSheet) {
