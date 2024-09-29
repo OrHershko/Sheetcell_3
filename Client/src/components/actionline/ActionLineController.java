@@ -1,5 +1,6 @@
 package components.actionline;
 
+import components.versions.VersionsSelectorComponentController;
 import dto.CellDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -7,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import main.AppController;
@@ -30,9 +32,6 @@ public class ActionLineController {
     @FXML
     private Button updateCellButton;
 
-    @FXML
-    private Button dynamicCalculationButton;
-
     private String currentCellId;
 
     private AppController appController;
@@ -45,7 +44,6 @@ public class ActionLineController {
     private void initialize() {
         updateCellButton.setDisable(true);
         textField.setDisable(true);
-        dynamicCalculationButton.setDisable(true);
     }
 
 
@@ -62,7 +60,6 @@ public class ActionLineController {
         }
         updateCellButton.setDisable(false);
         textField.setDisable(false);
-        dynamicCalculationButton.setDisable(!appController.isCellValueNumeric(currentCellId));
     }
 
     @FXML
@@ -98,4 +95,5 @@ public class ActionLineController {
     public void showOriginalGrid() throws IOException {
         appController.showCurrentSheetOnGrid();
     }
+
 }

@@ -1,10 +1,14 @@
 package sheetcell.utils;
 
+import api.CellValue;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import jakarta.servlet.ServletContext;
 import users.UserManager;
 import api.Engine;
 import dto.DTOFactoryImpl;
 import impl.EngineImpl;
+import utils.CellValueAdapter;
 
 public class ServletUtils {
 
@@ -13,6 +17,10 @@ public class ServletUtils {
 
 	private static final Object userManagerLock = new Object();
 	private static final Object engineLock = new Object();
+
+	private static final Gson gson = new GsonBuilder()
+			.registerTypeAdapter(CellValue.class, new CellValueAdapter())
+			.create();
 
 	public static UserManager getUserManager(ServletContext servletContext) {
 		synchronized (userManagerLock) {
@@ -30,5 +38,9 @@ public class ServletUtils {
 			}
 		}
 		return (Engine) servletContext.getAttribute(ENGINE_ATTRIBUTE_NAME);
+	}
+
+	public static Gson getGson() {
+		return gson;
 	}
 }

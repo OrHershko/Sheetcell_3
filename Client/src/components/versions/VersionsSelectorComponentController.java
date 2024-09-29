@@ -15,11 +15,6 @@ public class VersionsSelectorComponentController{
 
     private AppController appController;
 
-    @FXML
-    private void initialize() {
-        versionsSelectorComponent.setDisable(true);
-    }
-
     public void setAppController(AppController appController) {
         this.appController = appController;
     }
@@ -52,7 +47,4 @@ public class VersionsSelectorComponentController{
     }
 
 
-    public void disable(boolean disable) {
-        versionsSelectorComponent.setDisable(disable);
-    }
 }

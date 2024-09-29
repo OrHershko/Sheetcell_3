@@ -25,20 +25,7 @@ public class RangesController {
 
     private AppController appController;
 
-    @FXML
-    private void initialize() {
-        addNewRangeButton.setDisable(true);
-        deleteRangeButton.setDisable(true);
-        markRangeButton.setDisable(true);
-        unmarkRangeButton.setDisable(true);
-    }
 
-    public void disableButtons(boolean disable) {
-        addNewRangeButton.setDisable(disable);
-        deleteRangeButton.setDisable(disable);
-        markRangeButton.setDisable(disable);
-        unmarkRangeButton.setDisable(disable);
-    }
 
     @FXML
     private void addNewRangeOnClick() {

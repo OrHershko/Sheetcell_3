@@ -26,6 +26,10 @@ public class Constants {
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/login";
     public final static String UPLOAD_FILE = FULL_SERVER_PATH + "/uploadFile";
     public final static String GET_ALL_SHEETS_DATA = FULL_SERVER_PATH + "/getAllSheetsData";
+    public final static String GET_SHEET_DATA = FULL_SERVER_PATH + "/getSheetData";
+    public final static String UPDATE_CELL = FULL_SERVER_PATH + "/updateCell";
+    public final static String GET_SHEET_DTO = FULL_SERVER_PATH + "/getSheetDTO";
+    public final static String SET_CURRENT_SHEET = FULL_SERVER_PATH + "/setCurrentSheet";
 
     /*// GSON instance
     public final static Gson GSON_INSTANCE = new Gson();*/

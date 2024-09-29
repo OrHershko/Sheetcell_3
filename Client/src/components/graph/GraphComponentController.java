@@ -21,14 +21,6 @@ public class GraphComponentController {
         this.appController = appController;
     }
 
-    @FXML
-    private void initialize() {
-        createGraphButton.setDisable(true);
-    }
-
-    public void setDisable(boolean disable) {
-        createGraphButton.setDisable(disable);
-    }
 
     @FXML
     private void createGraphOnClick() throws IOException {

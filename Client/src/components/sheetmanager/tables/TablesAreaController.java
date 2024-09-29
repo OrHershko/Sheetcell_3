@@ -7,6 +7,7 @@ import dto.SheetDTO;
 import impl.sheet.PermissionData;
 import impl.sheet.SheetData;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -67,7 +68,10 @@ public class TablesAreaController {
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         sheetNameColumn.setCellValueFactory(new PropertyValueFactory<>("sheetName"));
         sheetSizeColumn.setCellValueFactory(new PropertyValueFactory<>("sheetSize"));
-        permissionTypeColumn.setCellValueFactory(new PropertyValueFactory<>("permissionType"));
+        permissionTypeColumn.setCellValueFactory(cellData -> {
+            SheetData sheetData = cellData.getValue();
+            return new SimpleStringProperty(sheetData.getPermissionTypeForUser(sheetManagerController.getUsername()));
+        });
         permissionUsernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         permissionTypeColumn2.setCellValueFactory(new PropertyValueFactory<>("permissionType"));
         permissionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("permissionStatus"));
@@ -233,6 +237,8 @@ public class TablesAreaController {
         thread.start();
     }
 
-
+    public SheetData getSelectedSheet() {
+        return sheetsTable.getSelectionModel().getSelectedItem();
+    }
 
 }

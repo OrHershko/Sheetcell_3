@@ -18,7 +18,7 @@ public class GetAllSheetsDataServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<SheetData> sheetList = ServletUtils.getEngine(getServletContext()).getAllSheetsData();
+        List<SheetData> sheetList = ServletUtils.getEngine(getServletContext()).getAllSheetsData(request.getParameter("username"));
 
         Gson gson = new Gson();
         String json = gson.toJson(sheetList);

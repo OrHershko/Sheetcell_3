@@ -29,6 +29,11 @@ public class FunctionValue implements CellValue {
         }
     }
 
+    public FunctionValue(String functionType, List<CellValue> arguments) {
+        this.functionType = FunctionType.valueOf(functionType.toUpperCase());
+        this.arguments.addAll(arguments);
+    }
+
     public void calculateAndSetEffectiveValue(){
         try{
             effectiveValue = eval();
@@ -39,6 +44,10 @@ public class FunctionValue implements CellValue {
         catch (BooleanException e){
             effectiveValue = "UNKNOWN";
         }
+    }
+
+    public void setEffectiveValue(Object value) {
+        this.effectiveValue = value;
     }
 
     public void setActivatingCell(Cell cell) {

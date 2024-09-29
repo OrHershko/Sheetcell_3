@@ -1,11 +1,13 @@
 package components.sheetmanager;
 
+import components.sheetmanager.commands.CommandsAreaController;
 import components.sheetmanager.tables.TablesAreaController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.AppController;
@@ -27,8 +29,15 @@ public class SheetManagerController {
     @FXML
     private TablesAreaController tablesAreaController;
 
+    @FXML
+    private AnchorPane commandsArea;
+
+    @FXML
+    private CommandsAreaController commandsAreaController;
+
     public void initialize() {
         tablesAreaController.setSheetManagerController(this);
+        commandsAreaController.setSheetManagerController(this);
     }
 
     public void startMainApp() {
@@ -40,10 +49,11 @@ public class SheetManagerController {
                 fxmlLoader.setLocation(appPage);
                 Parent root = fxmlLoader.load();
                 appController = fxmlLoader.getController();
-                Scene scene = new Scene(root);
+                appController.setNewSelectedSheet(tablesAreaController.getSelectedSheet());
+                Scene scene = new Scene(root,1200,800);
+                appController.applySkin("default");
                 primaryStage.setTitle("Sheetcell");
                 primaryStage.setScene(scene);
-                primaryStage.sizeToScene();
                 primaryStage.centerOnScreen();
                 primaryStage.show();
             }

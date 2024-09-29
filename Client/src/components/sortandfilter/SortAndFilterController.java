@@ -29,17 +29,6 @@ public class SortAndFilterController {
     }
 
     @FXML
-    private void initialize() {
-        sortButton.setDisable(true);
-        filterButton.setDisable(true);
-    }
-
-    public void disableButtons(boolean disable) {
-        sortButton.setDisable(disable);
-        filterButton.setDisable(disable);
-    }
-
-    @FXML
     private void sortOnClick() {
         try {
             openGetRangeDialog(true);

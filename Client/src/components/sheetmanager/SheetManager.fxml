@@ -6,7 +6,7 @@
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.SheetManagerController">
    <children>
       <fx:include fx:id="tablesArea" source="tables/TablesArea.fxml" />
-      <fx:include source="commands/CommandsArea.fxml" />
+      <fx:include fx:id="commandsArea" source="commands/CommandsArea.fxml" />
    </children>
    <padding>
       <Insets top="20.0" />

@@ -3,12 +3,11 @@ package dto;
 import api.DTO;
 import impl.cell.Cell;
 import impl.sheet.Sheet;
-import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SheetDTO implements DTO {
-    private final Map<String, CellDTO> activeCells;
+    private Map<String, CellDTO> activeCells;
     private final String name;
     private final int version;
     private final int numOfRows;

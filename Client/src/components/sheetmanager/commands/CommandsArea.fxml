@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="414.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="commandsArea" prefHeight="414.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.commands.CommandsAreaController">
    <children>
       <VBox alignment="TOP_CENTER" layoutX="7.0" layoutY="70.0" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0">
          <children>
@@ -15,7 +15,7 @@
                   <Font name="Aharoni Bold" size="18.0" />
                </font>
             </Label>
-            <Button mnemonicParsing="false" text="View Sheet" />
+            <Button fx:id="viewSheetButton" mnemonicParsing="false" onMouseClicked="#viewSheetOnClick" text="View Sheet" />
             <Button minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Create Premission Request" />
             <Button layoutX="26.0" layoutY="92.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Permission Request Response" />
          </children>

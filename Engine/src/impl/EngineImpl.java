@@ -17,11 +17,11 @@ import jakarta.xml.bind.Unmarshaller;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class EngineImpl implements Engine {
-    private Sheet currentSheet;
-    private List<Sheet> sheetsInMemory = new ArrayList<>();
+    private Map<SheetData, Sheet> sheetsInMemory = new ConcurrentHashMap();
     private final DTOFactory DTOFactory;
     private final String JAXB_XML_PACKAGE_NAME = "generated";
     private final int MAX_NUM_OF_ROWS = 50;
@@ -32,32 +32,6 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void loadFile(String filePath) throws IOException {
-        STLSheet currentSTLSheet;
-        checkIfFilePathValid(filePath);
-        try (InputStream inputStream = new FileInputStream(filePath)){
-            currentSTLSheet = buildSTLSheetFromXML(inputStream);
-        }
-        catch (JAXBException e){
-            throw new RuntimeException("Error: The file is not in the correct format.");
-        }
-        buildSheetFromSTLSheet(currentSTLSheet);
-        Sheet.clearPreviousVersions();
-    }
-
-    @Override
-    public void loadFile(InputStream inputStream) {
-        STLSheet currentSTLSheet;
-        try {
-            currentSTLSheet = buildSTLSheetFromXML(inputStream);
-        } catch (JAXBException e) {
-            throw new RuntimeException("Error: The file is not in the correct format.");
-        }
-        buildSheetFromSTLSheet(currentSTLSheet);
-        Sheet.clearPreviousVersions();
-    }
-
-    @Override
     public void loadFile(InputStream inputStream, String username) {
         STLSheet currentSTLSheet;
         try {
@@ -65,30 +39,9 @@ public class EngineImpl implements Engine {
         } catch (JAXBException e) {
             throw new RuntimeException("Error: The file is not in the correct format.");
         }
-        buildSheetFromSTLSheet(currentSTLSheet);
-        currentSheet.setUsernameOfOwner(username);
+        buildSheetFromSTLSheet(currentSTLSheet, username);
         Sheet.clearPreviousVersions();
     }
-
-
-
-
-    private void checkIfFilePathValid(String filePath) throws FileNotFoundException, FileNotXMLException {
-        File file = new File(filePath);
-        if(!file.exists()){
-            throw new FileNotFoundException("Error: File is not found in the file path " + filePath);
-        }
-        if(!file.getName().endsWith(".xml")){
-            throw new FileNotXMLException();
-        }
-    }
-
-//    private STLSheet buildSTLSheetFromXML(String filePath)throws IOException, JAXBException{
-//        InputStream inputStream = new FileInputStream(filePath);
-//        JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);
-//        Unmarshaller unmarshaller = jc.createUnmarshaller();
-//        return (STLSheet) unmarshaller.unmarshal(inputStream);
-//    }
 
     private STLSheet buildSTLSheetFromXML(InputStream inputStream) throws JAXBException {
         JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);
@@ -97,10 +50,16 @@ public class EngineImpl implements Engine {
     }
 
 
-
-    private void buildSheetFromSTLSheet(STLSheet currentSTLSheet) {
+    private void buildSheetFromSTLSheet(STLSheet currentSTLSheet, String username) {
         checkDataValidity(currentSTLSheet);
-        currentSheet = new Sheet();
+        Sheet currentSheet = setSheetFromSTL(currentSTLSheet);
+        currentSheet.setUsernameOfOwner(username);
+        SheetData currentSheetData = new SheetData(currentSheet.getUsernameOfOwner(), currentSheet.getName(), currentSheet.getNumOfRows() + "x" + currentSheet.getNumOfCols());
+        sheetsInMemory.put(currentSheetData, currentSheet);
+    }
+
+    private static Sheet setSheetFromSTL(STLSheet currentSTLSheet) {
+        Sheet currentSheet = new Sheet();
         currentSheet.setName(currentSTLSheet.getName());
         currentSheet.setNumOfCols(currentSTLSheet.getSTLLayout().getColumns());
         currentSheet.setNumOfRows(currentSTLSheet.getSTLLayout().getRows());
@@ -108,18 +67,18 @@ public class EngineImpl implements Engine {
         currentSheet.setRowHeight(currentSTLSheet.getSTLLayout().getSTLSize().getRowsHeightUnits());
         currentSheet.setActiveCells(currentSTLSheet.getSTLCells().getSTLCell());
         currentSheet.setRangesFromFile(currentSTLSheet.getSTLRanges());
-        sheetsInMemory.add(currentSheet);
+        return currentSheet;
     }
 
     @Override
-    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) {
+    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName, SheetData sheetData) {
         int topLeftCellRow = Cell.getRowFromCellID(topLeftCell);
         int topLeftCellColumn = Cell.getColumnFromCellID(topLeftCell);
         int bottomRightCellRow = Cell.getRowFromCellID(bottomRightCell);
         int bottomRightCellColumn = Cell.getColumnFromCellID(bottomRightCell);
-        currentSheet.checkIfRangeInBoundaries(topLeftCellRow, topLeftCellColumn, bottomRightCellRow, bottomRightCellColumn);
-        Range newRange = new Range(rangeName, topLeftCell, bottomRightCell, currentSheet);
-        currentSheet.addRange(newRange);
+        sheetsInMemory.get(sheetData).checkIfRangeInBoundaries(topLeftCellRow, topLeftCellColumn, bottomRightCellRow, bottomRightCellColumn);
+        Range newRange = new Range(rangeName, topLeftCell, bottomRightCell, sheetsInMemory.get(sheetData));
+        sheetsInMemory.get(sheetData).addRange(newRange);
     }
 
     private void checkDataValidity(STLSheet currentSTLSheet) {
@@ -161,38 +120,31 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public DTO getSheetDTO() {
-        checkForLoadedFile();
-        return DTOFactory.createSheetDTO(currentSheet);
+    public DTO getSheetDTO(SheetData sheetData) {
+        return DTOFactory.createSheetDTO(sheetsInMemory.get(sheetData));
     }
 
-    @Override
-    public void checkForLoadedFile(){
-        if(currentSheet == null)
-        {
-            throw new NullPointerException("Error: You must load a file to the system before performing this action.");
-        }
-    }
 
     @Override
-    public DTO getCellDTO(String cellIdentity) {
-        checkForLoadedFile();
-        Cell currentCell = currentSheet.getCell(cellIdentity);
+    public DTO getCellDTO(String cellIdentity, SheetData sheetData) {
+        Cell currentCell = sheetsInMemory.get(sheetData).getCell(cellIdentity);
         if(currentCell == null)
             return DTOFactory.createEmptyCellDTO(cellIdentity);
-        return DTOFactory.createCellDTO(currentSheet.getCell(cellIdentity));
+        return DTOFactory.createCellDTO(sheetsInMemory.get(sheetData).getCell(cellIdentity));
     }
 
     @Override
-    public boolean isCellInBounds(int row, int col) {
-        checkForLoadedFile();
-        return(row >= 0 && row < currentSheet.getNumOfRows() && col >= 0 && col < currentSheet.getNumOfCols());
+    public boolean isCellInBounds(int row, int col, SheetData sheetData) {
+        return(row >= 0 && row < sheetsInMemory.get(sheetData).getNumOfRows() && col >= 0 && col < sheetsInMemory.get(sheetData).getNumOfCols());
     }
 
     @Override
-    public void updateCellValue(String cellIdentity, CellValue value, String originalValue) {
-        checkForLoadedFile();
-        Sheet alternativeSheet = currentSheet.clone();
+    public void updateCellValue(String cellIdentity, CellValue value, String originalValue, SheetData sheetData) {
+        Sheet currentSheetToUpdate = sheetsInMemory.get(sheetData);
+        if (currentSheetToUpdate == null) {
+            throw new IllegalArgumentException("Sheet not found for the given sheetData");
+        }
+        Sheet alternativeSheet = currentSheetToUpdate.clone();
         List<Cell> topologicalOrder = alternativeSheet.sortActiveCellsTopologicallyByDFS();
         alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false);
         Cell updatedCell = alternativeSheet.getCell(cellIdentity);
@@ -202,8 +154,8 @@ public class EngineImpl implements Engine {
 
         alternativeSheet.recalculateByTopologicalOrder(topologicalOrder);
         alternativeSheet.calculateChangedCells(updatedCell);
-        Sheet.addToPreviousVersions(currentSheet);
-        currentSheet = alternativeSheet;
+        Sheet.addToPreviousVersions(currentSheetToUpdate);//TODO
+        sheetsInMemory.put(sheetData, alternativeSheet);
     }
 
     public static CellValue convertStringToCellValue(String newValue) {
@@ -238,9 +190,8 @@ public class EngineImpl implements Engine {
 
 
     @Override
-    public Map<Integer, DTO> getSheetsPreviousVersionsDTO() {
-        checkForLoadedFile();
-        Map<Integer,Sheet> previousVersions = currentSheet.getPreviousVersions();
+    public Map<Integer, DTO> getSheetsPreviousVersionsDTO(SheetData sheetData) {
+        Map<Integer,Sheet> previousVersions = sheetsInMemory.get(sheetData).getPreviousVersions();
 
         if(previousVersions.isEmpty()){
             throw new RuntimeException("There are no previous versions to look back at.");
@@ -264,61 +215,61 @@ public class EngineImpl implements Engine {
         }
     }
 
+//    @Override
+//    public void saveSheetToFile(String filePath) throws IOException {
+//
+//        checkIfFilePathIsDir(filePath);
+//
+//        if (!filePath.endsWith(".ser")) {
+//            filePath = filePath + ".ser";
+//        }
+//        try( FileOutputStream fileOut = new FileOutputStream(filePath);
+//             ObjectOutputStream out = new ObjectOutputStream(fileOut)){
+//            out.writeObject(currentSheet);
+//        }
+//        catch (IOException e) {
+//            throw new IOException("Error: File cannot be saved in: " + filePath);
+//        }
+//    }
+
+//    @Override
+//    public void loadPreviousSheetFromFile(String filePath) throws IOException, ClassNotFoundException {
+//
+//        checkIfFilePathIsDir(filePath);
+//
+//        if (!filePath.endsWith(".ser")) {
+//            filePath = filePath + ".ser";
+//        }
+//        try (FileInputStream fileIn = new FileInputStream(filePath);
+//             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+//            currentSheet = (Sheet) in.readObject();
+//        }
+//        catch (IOException e) {
+//            throw new FileNotFoundException("Error: File not found in: " + filePath);
+//        }
+//        catch (ClassNotFoundException e){
+//            throw new ClassNotFoundException("Error: File failed to load from: " + filePath + ". Please make sure that the file is in the correct format.");
+//        }
+//    }
+
+//    @Override
+//    public void setNewRowsWidth(int width) {
+//        currentSheet.setRowHeight(width);
+//    }
+//
+//    @Override
+//    public void setNewColsWidth(int width) {
+//        currentSheet.setColWidth(width);
+//    }
+
     @Override
-    public void saveSheetToFile(String filePath) throws IOException {
-
-        checkIfFilePathIsDir(filePath);
-
-        if (!filePath.endsWith(".ser")) {
-            filePath = filePath + ".ser";
-        }
-        try( FileOutputStream fileOut = new FileOutputStream(filePath);
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)){
-            out.writeObject(currentSheet);
-        }
-        catch (IOException e) {
-            throw new IOException("Error: File cannot be saved in: " + filePath);
-        }
+    public DTO getRangeDTOFromSheet(String rangeName, SheetData sheetData) {
+        return DTOFactory.createRangeDTO(sheetsInMemory.get(sheetData).getRange(rangeName));
     }
 
     @Override
-    public void loadPreviousSheetFromFile(String filePath) throws IOException, ClassNotFoundException {
-
-        checkIfFilePathIsDir(filePath);
-
-        if (!filePath.endsWith(".ser")) {
-            filePath = filePath + ".ser";
-        }
-        try (FileInputStream fileIn = new FileInputStream(filePath);
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            currentSheet = (Sheet) in.readObject();
-        }
-        catch (IOException e) {
-            throw new FileNotFoundException("Error: File not found in: " + filePath);
-        }
-        catch (ClassNotFoundException e){
-            throw new ClassNotFoundException("Error: File failed to load from: " + filePath + ". Please make sure that the file is in the correct format.");
-        }
-    }
-
-    @Override
-    public void setNewRowsWidth(int width) {
-        currentSheet.setRowHeight(width);
-    }
-
-    @Override
-    public void setNewColsWidth(int width) {
-        currentSheet.setColWidth(width);
-    }
-
-    @Override
-    public DTO getRangeDTOFromSheet(String rangeName) {
-        return DTOFactory.createRangeDTO(currentSheet.getRange(rangeName));
-    }
-
-    @Override
-    public void deleteRangeFromSheet(String rangeName) {
-        for(Cell cell : currentSheet.getActiveCells().values()) {
+    public void deleteRangeFromSheet(String rangeName, SheetData sheetData) {
+        for(Cell cell : sheetsInMemory.get(sheetData).getActiveCells().values()) {
             if(cell.getEffectiveValue() instanceof FunctionValue functionValue) {
                 if(functionValue.getFunctionType().equals(FunctionValue.FunctionType.AVERAGE) || functionValue.getFunctionType().equals(FunctionValue.FunctionType.SUM))
                 {
@@ -330,12 +281,12 @@ public class EngineImpl implements Engine {
             }
         }
 
-        currentSheet.deleteRange(rangeName);
+        sheetsInMemory.get(sheetData).deleteRange(rangeName);
 
     }
 
     @Override
-    public DTO getSortedSheetDTO(List<String> columnsToSortBy, String topLeft, String bottomRight) {
+    public DTO getSortedSheetDTO(List<String> columnsToSortBy, String topLeft, String bottomRight, SheetData sheetData) {
 
         int topLeftRow = Cell.getRowFromCellID(topLeft);
         int topLeftCol = Cell.getColumnFromCellID(topLeft);
@@ -343,9 +294,9 @@ public class EngineImpl implements Engine {
         int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
 
         try {
-            List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
+            List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, sheetData);
             sortRowsList(columnsToSortBy, rowsList, topLeftCol);
-            Sheet sortedSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
+            Sheet sortedSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList, sheetData);
             return DTOFactory.createSheetDTO(sortedSheet);
         }
         catch (IndexOutOfBoundsException e) {
@@ -376,8 +327,8 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private Sheet createModifiedSheet(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol, List<Map.Entry<Integer, List<Cell>>> rowsList) {
-        Sheet modifiedSheet = currentSheet.clone();
+    private Sheet createModifiedSheet(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol, List<Map.Entry<Integer, List<Cell>>> rowsList, SheetData sheetData) {
+        Sheet modifiedSheet = sheetsInMemory.get(sheetData).clone();
         clearRangeValues(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, modifiedSheet);
         updateRangeFromRowsList(topLeftRow, topLeftCol, rowsList, modifiedSheet);
         return modifiedSheet;
@@ -413,14 +364,14 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private List<Map.Entry<Integer, List<Cell>>> createListOfRows(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol) {
+    private List<Map.Entry<Integer, List<Cell>>> createListOfRows(int topLeftRow, int topLeftCol, int bottomRightRow, int bottomRightCol, SheetData sheetData) {
         List<Map.Entry<Integer, List<Cell>>> rowsList = new ArrayList<>();
 
         for (int row = topLeftRow; row <= bottomRightRow; row++) {
             List<Cell> cellsInRow = new ArrayList<>();
             for (int col = topLeftCol; col <= bottomRightCol; col++) {
                 String cellID = Cell.getCellIDFromRowCol(row, col);
-                Cell cell = currentSheet.getCell(cellID);
+                Cell cell = sheetsInMemory.get(sheetData).getCell(cellID);
                 if (cell != null) {
                     cellsInRow.add(cell);
                 }
@@ -432,9 +383,9 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
+    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight, SheetData sheetData) {
 
-        return currentSheet.getCellsInRange(topLeft, bottomRight)
+        return sheetsInMemory.get(sheetData).getCellsInRange(topLeft, bottomRight)
                 .stream()
                 .filter(cell -> column.equals(String.valueOf(cell.getIdentity().charAt(0))))
                 .map(cell-> cell.getEffectiveValue().getValue().toString())
@@ -463,26 +414,26 @@ public class EngineImpl implements Engine {
 
 
     @Override
-    public DTO getFilteredSheetDTO(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
+    public DTO getFilteredSheetDTO(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight, SheetData sheetData) {
         int topLeftRow = Cell.getRowFromCellID(topLeft);
         int topLeftCol = Cell.getColumnFromCellID(topLeft);
         int bottomRightRow = Cell.getRowFromCellID(bottomRight);
         int bottomRightCol = Cell.getColumnFromCellID(bottomRight);
 
-        List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol);
+        List<Map.Entry<Integer, List<Cell>>> rowsList = createListOfRows(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, sheetData);
         filterRowsList(colToSelectedValues, rowsList);
-        Sheet filteredSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList);
+        Sheet filteredSheet = createModifiedSheet(topLeftRow, topLeftCol, bottomRightRow, bottomRightCol, rowsList, sheetData);
         return DTOFactory.createSheetDTO(filteredSheet);
     }
 
     @Override
-    public int getNumOfColumnsInCurrSheet() {
-        return currentSheet.getNumOfCols();
+    public int getNumOfColumnsInCurrSheet(SheetData sheetData) {
+        return sheetsInMemory.get(sheetData).getNumOfCols();
     }
 
     @Override
-    public DTO DynamicCalculationOnSheet(String cellIdentity, CellValue value, String originalValue) {
-        Sheet alternativeSheet = currentSheet.clone();
+    public DTO DynamicCalculationOnSheet(String cellIdentity, CellValue value, String originalValue, SheetData sheetData) {
+        Sheet alternativeSheet = sheetsInMemory.get(sheetData).clone();
         List<Cell> topologicalOrder = alternativeSheet.sortActiveCellsTopologicallyByDFS();
         alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false);
         Cell updatedCell = alternativeSheet.getCell(cellIdentity);
@@ -497,20 +448,14 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public List<SheetData> getAllSheetsData() {
-        return sheetsInMemory.stream()
-                .map(sheet -> new SheetData(sheet.getUsernameOfOwner(), sheet.getNumOfRows() + "x" + sheet.getNumOfCols(), String.valueOf(sheet.getActiveCells().size()), "Owner"))
-                .collect(Collectors.toList());
+    public List<SheetData> getAllSheetsData(String usernameOfRequester) {
+        return new ArrayList<>(sheetsInMemory.keySet());
     }
 
     @Override
     public SheetData getSheetData(String sheetName) {
-        Sheet sheet = sheetsInMemory.stream()
-                .filter(s -> s.getName().equals(sheetName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Error: Sheet with name " + sheetName + " not found."));
-
-        return new SheetData(sheet.getUsernameOfOwner(), sheet.getNumOfRows() + "x" + sheet.getNumOfCols(), String.valueOf(sheet.getActiveCells().size()), "Owner");
+        return sheetsInMemory.keySet().stream().filter(sheet -> sheet.getSheetName().equals(sheetName)).findFirst().orElse(null);
     }
+
 
 }

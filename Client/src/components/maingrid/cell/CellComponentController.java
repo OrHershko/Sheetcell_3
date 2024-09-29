@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.util.Duration;
 import main.AppController;
 
+import java.io.IOException;
+
 public class CellComponentController {
 
     @FXML
@@ -18,7 +20,7 @@ public class CellComponentController {
 
     private AppController appController;
 
-    public void setCellSize(){
+    public void setCellSize() throws IOException {
         effectiveValue.setPrefHeight(appController.getPrefRowHeight());
         effectiveValue.setPrefWidth(appController.getPrefColWidth());
     }

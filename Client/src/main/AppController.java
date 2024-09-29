@@ -3,11 +3,12 @@ package main;
 import api.CellValue;
 import api.DTO;
 import api.Engine;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import components.actionline.ActionLineController;
 import components.bonuses.BonusesController;
 import components.commands.CommandsComponentController;
 import components.graph.GraphComponentController;
-import components.loadfile.LoadFileController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
 import components.ranges.RangesController;
@@ -20,6 +21,7 @@ import dto.SheetDTO;
 import impl.EngineImpl;
 import impl.cell.Cell;
 import impl.cell.value.NumericValue;
+import impl.sheet.SheetData;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -38,15 +40,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import utils.CellValueAdapter;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static impl.cell.Cell.getColumnFromCellID;
 import static impl.cell.Cell.getRowFromCellID;
+import static utils.Constants.*;
 
 
 public class AppController {
@@ -58,19 +64,13 @@ public class AppController {
     private HBox hBoxContainer;
 
     @FXML
-    private GridPane loadFileComponent;
-
-    @FXML
-    private LoadFileController loadFileComponentController;
-
-    @FXML
     private GridPane mainGridComponent;
 
     @FXML
     private MainGridController mainGridComponentController;
 
     @FXML
-    private GridPane actionLineComponent;
+    private HBox actionLineComponent;
 
     @FXML
     private ActionLineController actionLineComponentController;
@@ -111,24 +111,24 @@ public class AppController {
     @FXML
     private GraphComponentController graphComponentController;
 
-    private final Engine engine = new EngineImpl(new DTOFactoryImpl());
-
     private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
 
     private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
 
+    private final Engine engine = new EngineImpl(new DTOFactoryImpl());
+
+    private SheetData selectedSheet;
 
     @FXML
     public void initialize() {
-        loadFileComponentController.setAppController(this);
         mainGridComponentController.setAppController(this);
         actionLineComponentController.setAppController(this);
         commandsComponentController.setAppController(this);
         rangesComponentController.setAppController(this);
-        versionsSelectorComponentController.setAppController(this);
         sortAndFilterComponentController.setAppController(this);
-        bonusesComponentController.setAppController(this);
         graphComponentController.setAppController(this);
+        versionsSelectorComponentController.setAppController(this);
+        bonusesComponentController.setAppController(this);
         try {
             sheetPopUpStage();
         } catch (IOException e) {
@@ -136,37 +136,102 @@ public class AppController {
         }
     }
 
-    public void loadFileToEngine(File selectedFile) throws IOException {
-        engine.loadFile(selectedFile.getAbsolutePath());
-        Platform.runLater(() -> {
-            try {
-                mainGridComponentController.createDynamicGrid((SheetDTO) engine.getSheetDTO());
-                mainGridComponentController.buildGridBoundaries((SheetDTO) engine.getSheetDTO());
-                mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
-                commandsComponentController.disableButtons(false);
-                rangesComponentController.disableButtons(false);
-                versionsSelectorComponentController.disable(false);
-                sortAndFilterComponentController.disableButtons(false);
-                graphComponentController.setDisable(false);
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
 
     public void displayCellDataOnActionLine(CellDTO cell) {
         actionLineComponentController.displayCellData(cell);
     }
 
-    public void updateCellDataToEngine(String selectedCellId, String orgValue) throws IOException {
+    // Sending cell update to the server with SheetData object
+    public void updateCellDataToEngine(String selectedCellId, String newValue) throws IOException {
+        // יצירת חיבור לשרת
+        HttpURLConnection connection = createConnection(new URL(UPDATE_CELL));
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        connection.setDoOutput(true);
 
-        CellValue newCellValue = EngineImpl.convertStringToCellValue(orgValue);
-        engine.updateCellValue(selectedCellId, newCellValue, orgValue);
-        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
+        // המרת SheetData ל-JSON
+        Gson gson = new Gson();
+        String sheetDataJson = gson.toJson(selectedSheet);
+
+        // יצירת גוף הבקשה הכולל את כל הנתונים שברצונך לשלוח
+        String postData = "{ \"cellId\": \"" + selectedCellId + "\", \"newValue\": \"" + newValue + "\", \"sheetData\": " + sheetDataJson + " }";
+        byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
+
+        // שליחת הנתונים לשרת
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(postDataBytes);
+        }
+
+        // בדיקת קוד התגובה של השרת
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Failed to update cell, response code: " + responseCode);
+        }
+
+        Platform.runLater(() -> {
+            try {
+                refreshGridAfterCellUpdate(selectedCellId);
+            } catch (IOException e) {
+                showErrorDialog("Error", "Failed to refresh grid after cell update.");
+            }
+        });
+    }
+
+    private HttpURLConnection createConnection(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        return connection;
+    }
+
+    // Refresh grid after cell update
+    private void refreshGridAfterCellUpdate(String selectedCellId) throws IOException {
+        SheetDTO updatedSheet = getUpdatedSheetDTOFromServer();
+        mainGridComponentController.createInnerCellsInGrid(updatedSheet);
         mainGridComponentController.activateMouseClickedOfCell(selectedCellId);
         versionsSelectorComponentController.updateVersionsSelector();
     }
+
+    private SheetDTO getUpdatedSheetDTOFromServer() throws IOException {
+        // בניית URL לשרת
+        URL url = new URL(GET_SHEET_DTO);
+
+        // פתיחת חיבור לשרת
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true); // מאפשר כתיבת תוכן בבקשת ה-POST
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+//        connection.setConnectTimeout(5000); // זמן המתנה לחיבור (במילישניות)
+//        connection.setReadTimeout(5000); // זמן המתנה לקריאת הנתונים מהשרת
+
+        // המרת אובייקט ה-SheetData ל-JSON ושליחתו
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(CellValue.class, new CellValueAdapter())
+                .create();
+        String jsonInputString = gson.toJson(selectedSheet);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        // קבלת תגובת השרת
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            try (InputStream inputStream = connection.getInputStream();
+                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+
+                // שימוש ב-Gson כדי להמיר את התגובה ל-SheetDTO
+                return gson.fromJson(bufferedReader, SheetDTO.class);
+            }
+        } else {
+            throw new IOException("Failed to get updated sheet from server. Response code: " + responseCode);
+        }
+    }
+
+
 
     public void colorDependencies(Set<String> cells, String styleClass) {
 
@@ -199,12 +264,12 @@ public class AppController {
         alert.showAndWait();
     }
 
-    public double getPrefRowHeight() {
-        return ((SheetDTO) engine.getSheetDTO()).getRowHeight();
+    public double getPrefRowHeight() throws IOException {
+        return getUpdatedSheetDTOFromServer().getRowHeight();
     }
 
-    public double getPrefColWidth() {
-        return ((SheetDTO) engine.getSheetDTO()).getColWidth();
+    public double getPrefColWidth() throws IOException {
+        return getUpdatedSheetDTOFromServer().getColWidth();
     }
 
     public void updateColumnAlignment(int columnIndex, String alignment) {
@@ -215,16 +280,16 @@ public class AppController {
         return mainGridComponentController.getCellController(cellId);
     }
 
-    public boolean checkIfRowExist(int rowIndex) {
-        return rowIndex <= ((SheetDTO) engine.getSheetDTO()).getNumOfRows() && rowIndex >= 1;
+    public boolean checkIfRowExist(int rowIndex) throws IOException {
+        return rowIndex <= getUpdatedSheetDTOFromServer().getNumOfRows() && rowIndex >= 1;
     }
 
     public void setRowHeightInGrid(int rowIndex, int height) {
         mainGridComponentController.updateRowConstraints(rowIndex, height);
     }
 
-    public boolean checkIfColExist(int colIndex) {
-        return colIndex <= ((SheetDTO) engine.getSheetDTO()).getNumOfCols() && colIndex >= 1;
+    public boolean checkIfColExist(int colIndex) throws IOException {
+        return colIndex <= getUpdatedSheetDTOFromServer().getNumOfCols() && colIndex >= 1;
     }
 
     public void setColWidthInGrid(int rowIndex, int width) {
@@ -232,21 +297,21 @@ public class AppController {
     }
 
     public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) {
-        engine.addNewRange(topLeftCell, bottomRightCell, rangeName);
+        engine.addNewRange(topLeftCell, bottomRightCell, rangeName, selectedSheet);
     }
 
     public void markCellsInRange(String rangeName) {
-        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName, selectedSheet);
         mainGridComponentController.markCellsInRange(rangeDTO.getCells());
     }
 
     public void unmarkCellsInRange(String rangeName) {
-        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName, selectedSheet);
         mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
     }
 
     public Map<Integer, DTO> getSheetsPreviousVersionsDTO() {
-        return engine.getSheetsPreviousVersionsDTO();
+        return engine.getSheetsPreviousVersionsDTO(selectedSheet);
     }
 
     public void loadPreviousVersion(int selectedVersion) {
@@ -258,7 +323,7 @@ public class AppController {
             ScrollPane scrollPane = (ScrollPane) sheetPopUpStage.getScene().getRoot();
             GridPane gridPane = (GridPane) scrollPane.getContent();
             MainGridController controller = (MainGridController) gridPane.getUserData();
-            SheetDTO previousSheetDTO = (SheetDTO) engine.getSheetsPreviousVersionsDTO().get(selectedVersion);
+            SheetDTO previousSheetDTO = (SheetDTO) engine.getSheetsPreviousVersionsDTO(selectedSheet).get(selectedVersion);
             controller.createDynamicGrid(previousSheetDTO);
             controller.buildGridBoundaries(previousSheetDTO);
             controller.createInnerCellsInGrid(previousSheetDTO);
@@ -295,21 +360,21 @@ public class AppController {
     }
 
     public void deleteExistingRange(String rangeName) {
-        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName);
-        engine.deleteRangeFromSheet(rangeName);
+        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName, selectedSheet);
+        engine.deleteRangeFromSheet(rangeName, selectedSheet);
         mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
     }
 
     public boolean checkRangeOfCells(String topLeft, String bottomRight) {
-        return engine.isCellInBounds(Cell.getRowFromCellID(topLeft) - 1, Cell.getColumnFromCellID(topLeft) - 1)
-                && engine.isCellInBounds(Cell.getRowFromCellID(bottomRight) - 1, Cell.getColumnFromCellID(bottomRight) - 1);
+        return engine.isCellInBounds(Cell.getRowFromCellID(topLeft) - 1, Cell.getColumnFromCellID(topLeft) - 1, selectedSheet)
+                && engine.isCellInBounds(Cell.getRowFromCellID(bottomRight) - 1, Cell.getColumnFromCellID(bottomRight) - 1, selectedSheet);
     }
 
     public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight) {
         try {
             sheetPopUpStage.titleProperty().unbind();
             sheetPopUpStage.setTitle("Sorted Sheet");
-            SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight);
+            SheetDTO sortedSheetDTO = (SheetDTO) engine.getSortedSheetDTO(columnToSortBy, topLeft, bottomRight, selectedSheet);
             displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
         }
         catch (IOException ignored) {
@@ -322,14 +387,14 @@ public class AppController {
 
     public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
 
-        return engine.getValuesFromColumn(column, topLeft, bottomRight);
+        return engine.getValuesFromColumn(column, topLeft, bottomRight, selectedSheet);
     }
 
     public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
         try {
             sheetPopUpStage.titleProperty().unbind();
             sheetPopUpStage.setTitle("Filtered Sheet");
-            SheetDTO filteredSheetDTO = (SheetDTO) engine.getFilteredSheetDTO(colToSelectedValues, topLeft, bottomRight);
+            SheetDTO filteredSheetDTO = (SheetDTO) engine.getFilteredSheetDTO(colToSelectedValues, topLeft, bottomRight, selectedSheet);
             displaySheetPopUp(filteredSheetDTO, topLeft, bottomRight);
         } catch (IOException ignored) {
         }
@@ -376,26 +441,35 @@ public class AppController {
     }
 
     public double getCellValue(int row, String col) {
-        CellDTO cell = (CellDTO) engine.getCellDTO(Cell.getCellIDFromRowCol(row,Cell.getColumnFromCellID(col)));
+        CellDTO cell = (CellDTO) engine.getCellDTO(Cell.getCellIDFromRowCol(row,Cell.getColumnFromCellID(col)), selectedSheet);
         return Double.parseDouble(cell.getEffectiveValue().getValue().toString());
     }
 
     public int getNumOfColumnsInGrid() {
-        return engine.getNumOfColumnsInCurrSheet();
+        return engine.getNumOfColumnsInCurrSheet(selectedSheet);
     }
 
     public void showDynamicCalculation(String selectedCellId, String orgValue) throws IOException {
 
         CellValue newCellValue = EngineImpl.convertStringToCellValue(orgValue);
-        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.DynamicCalculationOnSheet(selectedCellId, newCellValue, orgValue));
+        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.DynamicCalculationOnSheet(selectedCellId, newCellValue, orgValue, selectedSheet));
     }
 
     public void showCurrentSheetOnGrid() throws IOException {
-        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO());
+        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO(selectedSheet));
     }
 
     public boolean isCellValueNumeric(String cellId) {
-        return ((CellDTO)engine.getCellDTO(cellId)).getEffectiveValue() instanceof NumericValue;
+        return ((CellDTO)engine.getCellDTO(cellId, selectedSheet)).getEffectiveValue() instanceof NumericValue;
+    }
+
+    public void setNewSelectedSheet(SheetData selectedSheet) throws IOException {
+        this.selectedSheet = selectedSheet;
+        SheetDTO sheetDTO = getUpdatedSheetDTOFromServer();
+        mainGridComponentController.createDynamicGrid(sheetDTO);
+        mainGridComponentController.buildGridBoundaries(sheetDTO);
+        mainGridComponentController.createInnerCellsInGrid(sheetDTO);
+        versionsSelectorComponentController.updateVersionsSelector();
     }
 
 }

@@ -22,7 +22,6 @@ public class SheetcellClientMain extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(loginPage);
             Parent root = fxmlLoader.load();
-
             Scene scene = new Scene(root);
             primaryStage.setTitle("Sheetcell");
             primaryStage.setScene(scene);
