@@ -1,9 +1,8 @@
 package sheetcell.servlets;
 
 import api.Engine;
-import api.CellValue;
 import com.google.gson.Gson;
-import impl.EngineImpl;
+import dto.CellDTO;
 import impl.sheet.SheetData;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,45 +14,42 @@ import sheetcell.utils.ServletUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-@WebServlet("/updateCell")
-public class UpdateCellServlet extends HttpServlet {
+@WebServlet("/getCellDTO")
+public class GetCellDTOServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Retrieve the engine instance from the servlet context
         Engine engine = ServletUtils.getEngine(getServletContext());
 
-        // Retrieve query parameters for cellId and newValue
+        // Retrieve query parameters for cellId and sheetId
         String cellId = request.getParameter("cellId");
-        String newValueStr = request.getParameter("newValue");
 
         // Parse the SheetData from the request body (JSON)
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
         SheetData sheetData = gson.fromJson(reader, SheetData.class);
 
+
         // Check that parameters are provided
-        if (cellId == null || newValueStr == null || sheetData == null) {
+        if (cellId == null || sheetData == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Missing cellId, newValue, or sheetData parameters.");
+            response.getWriter().write("Missing cellId or sheetId parameters.");
             return;
         }
 
         try {
-            // Convert the newValue to a CellValue
-            CellValue newCellValue = EngineImpl.convertStringToCellValue(newValueStr);
+            // Retrieve the cell DTO from the engine
+            CellDTO cellDTO = (CellDTO) engine.getCellDTO(cellId, sheetData);
 
-            // Update the cell in the engine
-            engine.updateCellValue(cellId, newCellValue, newValueStr, sheetData);
-
-            // Send success response
+            // Convert the cell DTO to JSON and send it as the response
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("Cell updated successfully.");
+            response.getWriter().write(ServletUtils.getGson().toJson(cellDTO));
 
         } catch (Exception e) {
-            // Handle exceptions (e.g., invalid value format or cell ID)
+            // Handle exceptions (e.g., invalid cell ID or sheet ID)
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Failed to update cell: " + e.getMessage());
+            response.getWriter().write("Failed to retrieve cell DTO: " + e.getMessage());
         }
     }
 }

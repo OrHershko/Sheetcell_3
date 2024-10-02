@@ -2,7 +2,6 @@ package impl;
 
 import api.*;
 import exception.CellOutOfBoundsException;
-import exception.FileNotXMLException;
 import exception.InvalidSheetSizeException;
 import exception.RangeUsedInFunctionException;
 import generated.STLCell;
@@ -21,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class EngineImpl implements Engine {
-    private Map<SheetData, Sheet> sheetsInMemory = new ConcurrentHashMap();
+    private final Map<SheetData, Sheet> sheetsInMemory = new ConcurrentHashMap<>();
     private final DTOFactory DTOFactory;
     private final String JAXB_XML_PACKAGE_NAME = "generated";
     private final int MAX_NUM_OF_ROWS = 50;
@@ -252,15 +251,6 @@ public class EngineImpl implements Engine {
 //        }
 //    }
 
-//    @Override
-//    public void setNewRowsWidth(int width) {
-//        currentSheet.setRowHeight(width);
-//    }
-//
-//    @Override
-//    public void setNewColsWidth(int width) {
-//        currentSheet.setColWidth(width);
-//    }
 
     @Override
     public DTO getRangeDTOFromSheet(String rangeName, SheetData sheetData) {
@@ -455,6 +445,11 @@ public class EngineImpl implements Engine {
     @Override
     public SheetData getSheetData(String sheetName) {
         return sheetsInMemory.keySet().stream().filter(sheet -> sheet.getSheetName().equals(sheetName)).findFirst().orElse(null);
+    }
+
+    @Override
+    public void addPermissionToSelectedSheet(SheetData sheetData, String requestType, String usernameOfRequester) {
+        sheetsInMemory.keySet().stream().filter(sheet -> sheet.equals(sheetData)).findFirst().ifPresent(sheet -> sheet.addNewPermissionRequest(requestType, usernameOfRequester));
     }
 
 

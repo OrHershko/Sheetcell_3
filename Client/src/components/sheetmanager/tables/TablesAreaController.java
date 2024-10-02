@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -56,6 +57,9 @@ public class TablesAreaController {
 
     @FXML
     private TableColumn<PermissionData, String> permissionStatusColumn;
+
+    @FXML
+    private Label usernameLabel;
 
     private SheetManagerController sheetManagerController;
 
@@ -227,7 +231,7 @@ public class TablesAreaController {
                         updateTableViewWithSheets(sheetsDataList);
                     });
 
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 }
             }
         };
@@ -241,4 +245,21 @@ public class TablesAreaController {
         return sheetsTable.getSelectionModel().getSelectedItem();
     }
 
+    public void setUsername(String username) {
+        usernameLabel.setText(usernameLabel.getText() + username);
+    }
+
+    public boolean isPermittedToViewSheet() {
+        SheetData selectedSheet = sheetsTable.getSelectionModel().getSelectedItem();
+        return selectedSheet != null && selectedSheet.isPermittedToView(sheetManagerController.getUsername());
+    }
+
+
+    public void refreshPermissionTable() {
+        SheetData selectedSheet = sheetsTable.getSelectionModel().getSelectedItem();
+        if (selectedSheet != null) {
+            List<PermissionData> permissionDataList = getPermissionDataForSheet(selectedSheet);
+            updatePermissionTable(permissionDataList);
+        }
+    }
 }

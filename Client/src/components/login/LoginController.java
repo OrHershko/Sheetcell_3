@@ -73,17 +73,7 @@ public class LoginController {
                 Platform.runLater(() -> {
                     try {
                         Stage primaryStage = (Stage) loginButton.getScene().getWindow();
-                        FXMLLoader fxmlLoader = new FXMLLoader();
-                        fxmlLoader.setLocation(appPage);
-                        Parent root = fxmlLoader.load();
-                        SheetManagerController sheetManagerController = fxmlLoader.getController();
-                        Scene scene = new Scene(root);
-                        primaryStage.setTitle("Sheetcell");
-                        primaryStage.setScene(scene);
-                        primaryStage.sizeToScene();
-                        primaryStage.centerOnScreen();
-                        primaryStage.show();
-                        sheetManagerController.setUsername(username);
+                        openSheetManager(appPage, primaryStage, username);
                     } catch (IOException e) {
                         e.printStackTrace();
                         AppController.showErrorDialog("Failed to load app", e.getMessage());
@@ -91,5 +81,19 @@ public class LoginController {
                 });
             }
         });
+    }
+
+    public static void openSheetManager(URL appPage, Stage primaryStage, String username) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(appPage);
+        Parent root = fxmlLoader.load();
+        SheetManagerController sheetManagerController = fxmlLoader.getController();
+        sheetManagerController.setUsername(username);
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Sheetcell");
+        primaryStage.setScene(scene);
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
+        primaryStage.show();
     }
 }

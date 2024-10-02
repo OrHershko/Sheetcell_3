@@ -16,7 +16,7 @@
                </font>
             </Label>
             <Button fx:id="viewSheetButton" mnemonicParsing="false" onMouseClicked="#viewSheetOnClick" text="View Sheet" />
-            <Button minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Create Premission Request" />
+            <Button fx:id="createPermissionRequestButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#createPermissionRequestOnClick" text="Create Permission Request" />
             <Button layoutX="26.0" layoutY="92.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Permission Request Response" />
          </children>
       </VBox>

@@ -4,6 +4,10 @@ package utils;
 import com.google.gson.Gson;
 */
 
+import api.CellValue;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class Constants {
 
     // global constants
@@ -16,6 +20,7 @@ public class Constants {
     public final static String MAIN_PAGE_FXML_RESOURCE_LOCATION = "/main/App.fxml";
     public final static String LOGIN_PAGE_FXML_RESOURCE_LOCATION = "/components/login/Login.fxml";
     public final static String SHEET_MANAGER_FXML_RESOURCE_LOCATION = "/components/sheetmanager/SheetManager.fxml";
+    public final static String REQUEST_PERMISSION_FXML_RESOURCE_LOCATION = "/components/sheetmanager/commands/RequestPermissionPopUp.fxml";
 
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
@@ -26,11 +31,15 @@ public class Constants {
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/login";
     public final static String UPLOAD_FILE = FULL_SERVER_PATH + "/uploadFile";
     public final static String GET_ALL_SHEETS_DATA = FULL_SERVER_PATH + "/getAllSheetsData";
-    public final static String GET_SHEET_DATA = FULL_SERVER_PATH + "/getSheetData";
     public final static String UPDATE_CELL = FULL_SERVER_PATH + "/updateCell";
     public final static String GET_SHEET_DTO = FULL_SERVER_PATH + "/getSheetDTO";
-    public final static String SET_CURRENT_SHEET = FULL_SERVER_PATH + "/setCurrentSheet";
+    public final static String GET_CELL_DTO = FULL_SERVER_PATH + "/getCellDTO";
+    public final static String ADD_NEW_RANGE = FULL_SERVER_PATH + "/addNewRange";
+    public final static String GET_RANGE_DTO = FULL_SERVER_PATH + "/getRangeDTO";
+    public final static String ADD_PERMISSION = FULL_SERVER_PATH + "/addPermissionToSelectedSheet";
 
-    /*// GSON instance
-    public final static Gson GSON_INSTANCE = new Gson();*/
+    // GSON instance
+    public final static Gson GSON_INSTANCE = new GsonBuilder()
+            .registerTypeAdapter(CellValue.class, new CellValueAdapter())
+            .create();;
 }

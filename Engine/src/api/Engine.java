@@ -52,6 +52,7 @@ public interface Engine {
 
     SheetData getSheetData(String sheetName);
 
+    void addPermissionToSelectedSheet(SheetData sheetData, String requestType, String usernameOfRequester);
 }
 
 

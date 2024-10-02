@@ -9,6 +9,7 @@ import components.actionline.ActionLineController;
 import components.bonuses.BonusesController;
 import components.commands.CommandsComponentController;
 import components.graph.GraphComponentController;
+import components.login.LoginController;
 import components.maingrid.MainGridController;
 import components.maingrid.cell.CellComponentController;
 import components.ranges.RangesController;
@@ -31,15 +32,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import okhttp3.HttpUrl;
 import utils.CellValueAdapter;
 
 import java.io.*;
@@ -109,13 +108,19 @@ public class AppController {
     private Button graphComponent;
 
     @FXML
+    private Label usernameLabel;
+
+    @FXML
+    private Button backButton;
+
+    @FXML
     private GraphComponentController graphComponentController;
 
     private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
 
     private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
 
-    private final Engine engine = new EngineImpl(new DTOFactoryImpl());
+   private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
     private SheetData selectedSheet;
 
@@ -129,6 +134,7 @@ public class AppController {
         graphComponentController.setAppController(this);
         versionsSelectorComponentController.setAppController(this);
         bonusesComponentController.setAppController(this);
+
         try {
             sheetPopUpStage();
         } catch (IOException e) {
@@ -136,28 +142,43 @@ public class AppController {
         }
     }
 
+    @FXML
+    public void backButtonClicked() throws IOException {
+        backButton.getScene().getWindow().hide();
+        URL appPage = getClass().getResource(SHEET_MANAGER_FXML_RESOURCE_LOCATION);
+        LoginController.openSheetManager(appPage, (Stage) backButton.getScene().getWindow(), usernameLabel.getText().replaceAll("Username: ", ""));
+    }
 
     public void displayCellDataOnActionLine(CellDTO cell) {
         actionLineComponentController.displayCellData(cell);
     }
 
-    // Sending cell update to the server with SheetData object
+
     public void updateCellDataToEngine(String selectedCellId, String newValue) throws IOException {
+        // בניית URL עם query parameters באמצעות HttpUrl
+        String finalUrl = HttpUrl
+                .parse(UPDATE_CELL)
+                .newBuilder()
+                .addQueryParameter("cellId", selectedCellId)
+                .addQueryParameter("newValue", newValue)
+                .build()
+                .toString();
+
         // יצירת חיבור לשרת
-        HttpURLConnection connection = createConnection(new URL(UPDATE_CELL));
+        URL url = new URL(finalUrl);
+        HttpURLConnection connection = createConnection(url);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
         // המרת SheetData ל-JSON
-        Gson gson = new Gson();
+        Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // יצירת גוף הבקשה הכולל את כל הנתונים שברצונך לשלוח
-        String postData = "{ \"cellId\": \"" + selectedCellId + "\", \"newValue\": \"" + newValue + "\", \"sheetData\": " + sheetDataJson + " }";
-        byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
+        // המרת JsonObject למחרוזת JSON
+        byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
 
-        // שליחת הנתונים לשרת
+        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
@@ -177,7 +198,7 @@ public class AppController {
         });
     }
 
-    private HttpURLConnection createConnection(URL url) throws IOException {
+    public static HttpURLConnection createConnection(URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -202,8 +223,7 @@ public class AppController {
         connection.setRequestMethod("POST");
         connection.setDoOutput(true); // מאפשר כתיבת תוכן בבקשת ה-POST
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-//        connection.setConnectTimeout(5000); // זמן המתנה לחיבור (במילישניות)
-//        connection.setReadTimeout(5000); // זמן המתנה לקריאת הנתונים מהשרת
+
 
         // המרת אובייקט ה-SheetData ל-JSON ושליחתו
         Gson gson = new GsonBuilder()
@@ -296,19 +316,109 @@ public class AppController {
         mainGridComponentController.updateColConstraints(rowIndex, width);
     }
 
-    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) {
-        engine.addNewRange(topLeftCell, bottomRightCell, rangeName, selectedSheet);
+    public void addNewRange(String topLeftCell, String bottomRightCell, String rangeName) throws IOException {
+
+        String finalUrl = HttpUrl
+                .parse(ADD_NEW_RANGE)
+                .newBuilder()
+                .addQueryParameter("topLeftCell", topLeftCell)
+                .addQueryParameter("bottomRightCell", bottomRightCell)
+                .addQueryParameter("rangeName", rangeName)
+                .build()
+                .toString();
+
+        // יצירת חיבור לשרת
+        URL url = new URL(finalUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
+        Gson gson = GSON_INSTANCE;
+        String sheetDataJson = gson.toJson(selectedSheet);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        // בדיקת תגובת השרת
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            System.out.println("Range added successfully.");
+        } else {
+            throw new IOException("Failed to add range, response code: " + responseCode);
+        }
+
     }
 
-    public void markCellsInRange(String rangeName) {
-        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName, selectedSheet);
-        mainGridComponentController.markCellsInRange(rangeDTO.getCells());
+    public void markCellsInRange(String rangeName) throws IOException {
+        updateCellsInRange(rangeName, true);
     }
 
-    public void unmarkCellsInRange(String rangeName) {
-        RangeDTO rangeDTO = (RangeDTO) engine.getRangeDTOFromSheet(rangeName, selectedSheet);
-        mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
+    public void unmarkCellsInRange(String rangeName) throws IOException {
+        updateCellsInRange(rangeName, false);
     }
+
+    public void updateCellsInRange(String rangeName, boolean mark) throws IOException {
+        // בניית URL עם הפרמטר של rangeName
+        String finalUrl = HttpUrl
+                .parse(GET_RANGE_DTO)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeName)
+                .build()
+                .toString();
+
+        // יצירת חיבור ושליחת SheetData
+        HttpURLConnection connection = createConnectionWithSheetData(finalUrl);
+
+        // קבלת RangeDTO מהשרת
+        RangeDTO rangeDTO = getRangeDTOFromServer(connection);
+
+        // סימון או הסרת סימון התאים בטווח על בסיס הערך של 'mark'
+        if (mark) {
+            mainGridComponentController.markCellsInRange(rangeDTO.getCells());
+        } else {
+            mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
+        }
+    }
+
+    private HttpURLConnection createConnectionWithSheetData(String finalUrl) throws IOException {
+        URL url = new URL(finalUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
+        Gson gson = GSON_INSTANCE;
+        String sheetDataJson = gson.toJson(selectedSheet);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        return connection;
+    }
+
+    private RangeDTO getRangeDTOFromServer(HttpURLConnection connection) throws IOException {
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            try (InputStream inputStream = connection.getInputStream();
+                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+
+                // המרת התגובה ל-RangeDTO
+                Gson gson = GSON_INSTANCE;
+                return gson.fromJson(bufferedReader, RangeDTO.class);
+            }
+        } else {
+            throw new IOException("Failed to update cells in range, response code: " + responseCode);
+        }
+    }
+
 
     public Map<Integer, DTO> getSheetsPreviousVersionsDTO() {
         return engine.getSheetsPreviousVersionsDTO(selectedSheet);
@@ -408,7 +518,6 @@ public class AppController {
         controller.createDynamicGrid(filteredSheetDTO);
         controller.buildGridBoundaries(filteredSheetDTO);
         controller.createInnerCellsInGrid(filteredSheetDTO);
-        //controller.markFilterArea(topLeft, bottomRight);
         controller.disableGrid(true);
 
         if (!sheetPopUpStage.isShowing()) {
@@ -441,7 +550,7 @@ public class AppController {
     }
 
     public double getCellValue(int row, String col) {
-        CellDTO cell = (CellDTO) engine.getCellDTO(Cell.getCellIDFromRowCol(row,Cell.getColumnFromCellID(col)), selectedSheet);
+        CellDTO cell = getCellDTOFromServer(Cell.getCellIDFromRowCol(row,Cell.getColumnFromCellID(col)));
         return Double.parseDouble(cell.getEffectiveValue().getValue().toString());
     }
 
@@ -460,7 +569,51 @@ public class AppController {
     }
 
     public boolean isCellValueNumeric(String cellId) {
-        return ((CellDTO)engine.getCellDTO(cellId, selectedSheet)).getEffectiveValue() instanceof NumericValue;
+        return getCellDTOFromServer(cellId).getEffectiveValue() instanceof NumericValue;
+    }
+
+    private CellDTO getCellDTOFromServer(String cellId) {
+        try {
+            String finalUrl = HttpUrl
+                    .parse(GET_CELL_DTO)
+                    .newBuilder()
+                    .addQueryParameter("cellId", cellId)
+                    .build()
+                    .toString();
+
+            URL url = new URL(finalUrl);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            // המרת SheetData ל-JSON
+            Gson gson = GSON_INSTANCE;
+            String sheetDataJson = gson.toJson(selectedSheet);
+
+            // המרת JsonObject למחרוזת JSON
+            byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
+
+            // שליחת הנתונים לשרת (SheetData כ-body)
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(postDataBytes);
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (InputStream inputStream = connection.getInputStream();
+                     InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+                    return gson.fromJson(bufferedReader, CellDTO.class);
+                }
+            } else {
+                throw new IOException("Failed to get cell DTO from server. Response code: " + responseCode);
+            }
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to get cell DTO from server.");
+            return null;
+        }
     }
 
     public void setNewSelectedSheet(SheetData selectedSheet) throws IOException {
@@ -472,4 +625,7 @@ public class AppController {
         versionsSelectorComponentController.updateVersionsSelector();
     }
 
+    public void setUsername(String username) {
+        usernameLabel.setText(usernameLabel.getText() + username);
+    }
 }

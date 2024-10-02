@@ -28,7 +28,6 @@ public class LoginServlet extends HttpServlet {
 
             System.out.println("Login request received for username: " + usernameFromParameter);
 
-
             if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
                 //no username in session and no username in parameter - not standard situation. it's a conflict.
                 response.setStatus(HttpServletResponse.SC_CONFLICT);

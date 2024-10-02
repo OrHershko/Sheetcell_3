@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.commands.RequestPermissionPopUpController">
+   <content>
+      <VBox minHeight="-Infinity" minWidth="-Infinity" spacing="20.0">
+         <children>
+            <Label fx:id="selectedSheetLabel" text="Selected Sheet:" />
+            <HBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
+               <children>
+                  <Label text="Request Type : " />
+                  <MenuButton fx:id="requestTypeMenuButton" mnemonicParsing="false" prefWidth="70.0" />
+               </children>
+            </HBox>
+            <Button fx:id="createRequestButton" mnemonicParsing="false" onMouseClicked="#CreateRequestOnClick" text="Create Request">
+               <VBox.margin>
+                  <Insets left="200.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </content>
+   <padding>
+      <Insets bottom="10.0" right="1.0" />
+   </padding>
+</ScrollPane>

@@ -9,6 +9,9 @@ public class CommandsAreaController {
     @FXML
     private Button viewSheetButton;
 
+    @FXML
+    private Button createPermissionRequestButton;
+
     private SheetManagerController sheetManagerController;
 
     public void setSheetManagerController(SheetManagerController sheetManagerController) {
@@ -17,6 +20,17 @@ public class CommandsAreaController {
 
     @FXML
     private void viewSheetOnClick() {
-        sheetManagerController.startMainApp();
+
+        if(sheetManagerController.isPermittedToViewSheet()) {
+            sheetManagerController.startMainApp();
+        } else {
+            sheetManagerController.showPermissionErrorDialog();
+        }
+
+    }
+
+    @FXML
+    private void createPermissionRequestOnClick() {
+        sheetManagerController.showRequestPermissionPopUp();
     }
 }

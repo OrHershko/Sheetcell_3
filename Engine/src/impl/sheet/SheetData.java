@@ -29,16 +29,19 @@ public class SheetData {
         return sheetSize;
     }
 
-    public void addPermissionData(PermissionData permissionData) {
-        permissionsData.add(permissionData);
+    public void addNewPermissionRequest(String requestType, String username) {
+        permissionsData.add(new PermissionData(username, requestType, "PENDING"));
     }
 
     public List<PermissionData> getPermissionData() { return permissionsData; }
 
     public String getPermissionTypeForUser(String usernameOfRequester) {
         for (PermissionData permissionData : permissionsData) {
-            if (permissionData.getUsername().equals(usernameOfRequester)) {
+            if (permissionData.getUsername().equals(usernameOfRequester) && permissionData.getPermissionType().equals("OWNER")) {
                 return permissionData.getPermissionType();
+            }
+            if (permissionData.getUsername().equals(usernameOfRequester) && !permissionData.getPermissionStatus().equals("APPROVED")) {
+                return "NO PERMISSION";
             }
         }
         return "NO PERMISSION";
@@ -58,5 +61,14 @@ public class SheetData {
     @Override
     public int hashCode() {
         return Objects.hash(username, sheetName, sheetSize);
+    }
+
+    public boolean isPermittedToView(String username) {
+        for (PermissionData permissionData : permissionsData) {
+            if (permissionData.getUsername().equals(username) && !permissionData.getPermissionType().equals("NO PERMISSION")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
