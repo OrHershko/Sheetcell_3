@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import main.AppController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -134,15 +135,15 @@ public class GetRangePopUpController {
     }
 
 
-    public void sort(List<String> columnToSortBy) {
+    public void sort(List<String> columnToSortBy) throws IOException {
         sortAndFilterController.sort(columnToSortBy, topLeft, bottomRight);
     }
 
-    public Set<String> getValuesFromColumn(String column) {
+    public Set<String> getValuesFromColumn(String column) throws IOException {
         return sortAndFilterController.getValuesFromColumn(column, topLeft, bottomRight);
     }
 
-    public void filter(Map<String, Set<String>> colToSelectedValues) {
+    public void filter(Map<String, Set<String>> colToSelectedValues) throws IOException {
         sortAndFilterController.filter(colToSelectedValues, topLeft, bottomRight);
     }
 

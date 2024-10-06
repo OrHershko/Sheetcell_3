@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import main.AppController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class GetGraphRangePopUpController {
         this.currentPopupStage = currentPopupStage;
     }
 
-    public void setColumnsChoiceBoxes() {
+    public void setColumnsChoiceBoxes() throws IOException {
         int numOfColumns = graphComponentController.getNumOfColumns();
         List<String> columnChoices = generateColumnLabels(numOfColumns);
         xColumnsChoiceBox.getItems().addAll(columnChoices);

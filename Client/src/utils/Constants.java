@@ -37,6 +37,14 @@ public class Constants {
     public final static String ADD_NEW_RANGE = FULL_SERVER_PATH + "/addNewRange";
     public final static String GET_RANGE_DTO = FULL_SERVER_PATH + "/getRangeDTO";
     public final static String ADD_PERMISSION = FULL_SERVER_PATH + "/addPermissionToSelectedSheet";
+    public final static String GET_SHEET_VERSIONS_ENDPOINT = FULL_SERVER_PATH + "/getSheetsPreviousVersions";
+    public final static String DELETE_RANGE_FROM_SHEET = FULL_SERVER_PATH + "/deleteRangeFromSheet";
+    public final static String CHECK_RANGE_OF_CELLS = FULL_SERVER_PATH + "/checkRangeOfCells";
+    public final static String SORT_SHEET_BY_COLUMNS = FULL_SERVER_PATH + "/sortSheetByColumns";
+    public final static String GET_VALUES_FROM_COLUMN = FULL_SERVER_PATH + "/getValuesFromColumn";
+    public final static String FILTER_SHEET_URL = FULL_SERVER_PATH + "/filterSheet";
+    public final static String GET_NUM_OF_COLUMNS_IN_GRID_URL = FULL_SERVER_PATH + "/getNumOfColumnsInGrid";
+    public final static String DYNAMIC_CALCULATION_URL = FULL_SERVER_PATH + "/dynamicCalculation";
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new GsonBuilder()

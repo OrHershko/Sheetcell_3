@@ -71,15 +71,15 @@ public class SortAndFilterController {
         }
     }
 
-    public void sort(List<String> columnToSortBy, String topLeft, String bottomRight) {
+    public void sort(List<String> columnToSortBy, String topLeft, String bottomRight) throws IOException {
         appController.sortSheetByColumns(columnToSortBy, topLeft, bottomRight);
     }
 
-    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) {
+    public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) throws IOException {
         return appController.getValuesFromColumn(column,topLeft,bottomRight);
     }
 
-    public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) {
+    public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) throws IOException {
         appController.filter(colToSelectedValues,topLeft,bottomRight);
     }
 }

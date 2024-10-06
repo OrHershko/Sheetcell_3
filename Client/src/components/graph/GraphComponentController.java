@@ -41,7 +41,7 @@ public class GraphComponentController {
         return appController.getCellValue(rowX, xColumn);
     }
 
-    public int getNumOfColumns() {
+    public int getNumOfColumns() throws IOException {
         return appController.getNumOfColumnsInGrid();
     }
 }

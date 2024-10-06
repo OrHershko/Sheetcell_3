@@ -10,6 +10,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.*;
 
 public class FilterGetColumnsPopUpController implements ColumnActionController {
@@ -68,7 +69,12 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
     private void addListenerToColumnsChoiceBox(ChoiceBox<String> columns , ListView<String> values) {
         columns.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Set<String> valuesInCol = getRangePopUpController.getValuesFromColumn(newValue.replace("Column ", "").trim());
+                Set<String> valuesInCol = null;
+                try {
+                    valuesInCol = getRangePopUpController.getValuesFromColumn(newValue.replace("Column ", "").trim());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 values.getItems().clear();
                 values.getItems().addAll(valuesInCol);
             }
@@ -104,7 +110,7 @@ public class FilterGetColumnsPopUpController implements ColumnActionController {
     }
 
     @FXML
-    private void filterOnClick(){
+    private void filterOnClick() throws IOException {
         Map<String, Set<String>> colToSelectedValues = new HashMap<>();
 
         colToSelectedValues.put(columnsChoiceBox.getValue().replace("Column ", "").trim(),

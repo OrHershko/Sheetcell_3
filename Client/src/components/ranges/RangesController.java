@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
 import main.AppController;
 
+import java.io.IOException;
 import java.util.InputMismatchException;
 
 public class RangesController {
@@ -140,6 +141,8 @@ public class RangesController {
         }
         catch (RangeUsedInFunctionException e){
             AppController.showErrorDialog("Range Deleting Error", e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

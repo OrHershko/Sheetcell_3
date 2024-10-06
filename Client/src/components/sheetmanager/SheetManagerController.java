@@ -61,7 +61,7 @@ public class SheetManagerController {
                 appController = fxmlLoader.getController();
                 appController.setNewSelectedSheet(tablesAreaController.getSelectedSheet());
                 appController.setUsername(username);
-                Scene scene = new Scene(root,1200,800);
+                Scene scene = new Scene(root,1200,600);
                 appController.applySkin("default");
                 primaryStage.setTitle("Sheetcell");
                 primaryStage.setScene(scene);

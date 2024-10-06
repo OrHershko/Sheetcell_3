@@ -8,9 +8,9 @@
           <element id="module-output" name="Server" />
         </element>
         <element id="directory" name="lib">
+          <element id="library" level="project" name="gson-2.1-javadoc" />
           <element id="artifact" artifact-name="Engine" />
           <element id="artifact" artifact-name="DTO" />
-          <element id="library" level="project" name="gson-2.1-javadoc" />
         </element>
       </element>
     </root>
