@@ -31,19 +31,19 @@ public class RangesController {
     @FXML
     private void addNewRangeOnClick() {
         // בקשת שם ה-Range
-        String rangeName = requestRangeName();
+        String rangeName = requestRangeName("Add New Range", "Define a unique name of the new range:");
         if (rangeName == null) {
             return; // המשתמש לחץ על ביטול
         }
 
         // בקשת התא השמאלי העליון
-        String topLeftCell = requestCellPosition("Top-left cell", "Define the top-left cell of the range (e.g., A1):");
+        String topLeftCell = requestCellPosition("Add New Range", "Define the top-left cell of the range (e.g., A1):");
         if (topLeftCell == null) {
             return; // המשתמש לחץ על ביטול
         }
 
         // בקשת התא הימני התחתון
-        String bottomRightCell = requestCellPosition("Bottom-right cell", "Define the bottom-right cell of the range (e.g., A4):");
+        String bottomRightCell = requestCellPosition("Add New Range", "Define the bottom-right cell of the range (e.g., A4):");
         if (bottomRightCell == null) {
             return; // המשתמש לחץ על ביטול
         }
@@ -70,11 +70,10 @@ public class RangesController {
     }
 
     // פונקציה לבקשת שם ה-Range
-    private String requestRangeName() {
+    private String requestRangeName(String title, String headerText) {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Range Name");
-        dialog.setHeaderText("Define a unique name for the new range");
-        dialog.setContentText("Please enter the range name:");
+        dialog.setTitle(title);
+        dialog.setHeaderText(headerText);
 
         return dialog.showAndWait().orElse(null); // מחזירה את השם שהוזן או null אם המשתמש ביטל
     }
@@ -84,7 +83,6 @@ public class RangesController {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(title);
         dialog.setHeaderText(headerText);
-        dialog.setContentText("Please enter the cell position:");
 
         return dialog.showAndWait().orElse(null); // מחזירה את הקלט או null אם המשתמש ביטל
     }
@@ -92,7 +90,7 @@ public class RangesController {
 
     @FXML
     private void markExistingRangeOnClick(){
-        String rangeName = requestRangeName();
+        String rangeName = requestRangeName("Mark Existing Range", "Enter the name of the range you want to mark:");
         if (rangeName == null) {
             return; // המשתמש לחץ על ביטול או לא הזין שם
         }
@@ -109,7 +107,7 @@ public class RangesController {
 
     @FXML
     private void unmarkExistingRangeOnClick(){
-        String rangeName = requestRangeName();
+        String rangeName = requestRangeName("Unmark Existing Range", "Enter the name of the range you want to unmark:");
         if (rangeName == null) {
             return;
         }
@@ -128,7 +126,7 @@ public class RangesController {
 
     @FXML
     private void deleteRangeOnClick(){
-        String rangeName = requestRangeName();
+        String rangeName = requestRangeName("Delete Existing Range", "Enter the name of the range you want to delete:");
         if (rangeName == null) {
             return;
         }

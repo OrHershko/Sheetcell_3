@@ -3,6 +3,8 @@ package sheetcell.servlets;
 import api.Engine;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import dto.SheetDTO;
 import impl.EngineImpl;
 import impl.sheet.SheetData;
@@ -15,6 +17,7 @@ import sheetcell.utils.ServletUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,10 +36,12 @@ public class FilterSheetServlet extends HttpServlet {
         // קריאת ה-body של הבקשה (JSON)
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
-        JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(reader).getAsJsonObject();
 
         // קבלת colToSelectedValues מה-body
-        Map<String, Set<String>> colToSelectedValues = gson.fromJson(jsonObject.get("colToSelectedValues"), Map.class);
+        Type type = new TypeToken<Map<String, Set<String>>>(){}.getType();
+        Map<String, Set<String>> colToSelectedValues = gson.fromJson(jsonObject.get("colToSelectedValues"), type);
 
         // קבלת sheetData מה-body
         SheetData sheetData = gson.fromJson(jsonObject.get("sheetData"), SheetData.class);

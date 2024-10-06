@@ -38,6 +38,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.HttpUrl;
@@ -551,7 +553,14 @@ public class AppController {
         // בדיקת קוד התגובה מהשרת
         int responseCode = deleteConnection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Failed to delete range, response code: " + responseCode);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(deleteConnection.getErrorStream(), "utf-8"))) {
+                StringBuilder errorResponse = new StringBuilder();
+                String errorLine;
+                while ((errorLine = br.readLine()) != null) {
+                    errorResponse.append(errorLine.trim());
+                }
+                showErrorDialog("Error", errorResponse.toString());
+            }
         }
 
         mainGridComponentController.unmarkCellsInRange(rangeDTO.getCells());
@@ -642,6 +651,8 @@ public class AppController {
         jsonObject.add("sheetData", gson.toJsonTree(selectedSheet));
 
         String jsonInputString = gson.toJson(jsonObject);
+        System.out.println("JSON sent to server: " + jsonInputString);
+
         byte[] postDataBytes = jsonInputString.getBytes(StandardCharsets.UTF_8);
 
         // שליחת הבקשה לשרת
@@ -1019,5 +1030,6 @@ public class AppController {
 
     public void setUsername(String username) {
         usernameLabel.setText(usernameLabel.getText() + username);
+        usernameLabel.getStyleClass().add("username-label");
     }
 }

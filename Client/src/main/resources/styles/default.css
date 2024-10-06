@@ -52,3 +52,8 @@
 .menu-item:hover {
     -fx-background-color: #a1a5a8;
 }
+
+.username-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}

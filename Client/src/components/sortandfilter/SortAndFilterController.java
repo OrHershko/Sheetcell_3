@@ -48,7 +48,11 @@ public class SortAndFilterController {
 
         Stage stage = new Stage();
         controller.setPopUpStage(stage);
-        stage.setTitle("Enter Range");
+        if(isSorting) {
+            stage.setTitle("Sort Range");
+        } else {
+            stage.setTitle("Filter Range");
+        }
         stage.setScene(new Scene(root, 400, 200));
         stage.show();
     }

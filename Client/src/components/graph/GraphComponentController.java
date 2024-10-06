@@ -32,7 +32,7 @@ public class GraphComponentController {
 
         Stage stage = new Stage();
         controller.setCurrentPopupStage(stage);
-        stage.setTitle("Build Graph");
+        stage.setTitle("Create Graph");
         stage.setScene(new Scene(root, 480, 150));
         stage.show();
     }

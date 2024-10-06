@@ -1,7 +1,9 @@
 package sheetcell.servlets;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import impl.EngineImpl;
 import impl.sheet.SheetData;
 import jakarta.servlet.ServletException;
@@ -31,7 +33,10 @@ public class SortSheetByColumnsServlet extends HttpServlet {
         // קריאת ה-body של הבקשה (JSON)
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
-        JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(reader).getAsJsonObject();
+
+
 
         // קבלת רשימת העמודות מ-json והמרת SheetData מה-JSON
         List<String> columnToSortBy = gson.fromJson(jsonObject.get("columnToSortBy"), List.class);

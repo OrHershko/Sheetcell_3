@@ -15,6 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -197,9 +199,16 @@ public class TablesAreaController {
     }
 
     private void updateTableViewWithSheets(List<SheetData> sheetsDataList) {
+        SheetData selectedSheet = sheetsTable.getSelectionModel().getSelectedItem();
+
         sheetsTable.getItems().clear();
         sheetsTable.getItems().addAll(sheetsDataList);
+
+        if (selectedSheet != null) {
+            sheetsTable.getSelectionModel().select(selectedSheet);
+        }
     }
+
 
 
     private List<SheetData> fetchSheetsFromServer() throws IOException {
@@ -247,6 +256,7 @@ public class TablesAreaController {
 
     public void setUsername(String username) {
         usernameLabel.setText(usernameLabel.getText() + username);
+        usernameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
     }
 
     public boolean isPermittedToViewSheet() {

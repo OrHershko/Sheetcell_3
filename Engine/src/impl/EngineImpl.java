@@ -265,7 +265,7 @@ public class EngineImpl implements Engine {
                 {
                     if(functionValue.getArguments().getFirst().getValue().equals(rangeName))
                     {
-                        throw new RangeUsedInFunctionException("The range '" + rangeName + "cannot be deleted because it is used in a function.");
+                        throw new RangeUsedInFunctionException("The range " + rangeName + " cannot be deleted because it is used in a function.");
                     }
                 }
             }

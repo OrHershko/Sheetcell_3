@@ -2,6 +2,7 @@ package sheetcell.servlets;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import impl.EngineImpl;
 import impl.sheet.SheetData;
 import jakarta.servlet.ServletException;
@@ -31,10 +32,11 @@ public class GetValuesFromColumnServlet extends HttpServlet {
         // קריאת ה-body של הבקשה (JSON)
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
-        JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(reader).getAsJsonObject();
 
         // המרת SheetData מ-JSON
-        SheetData sheetData = gson.fromJson(jsonObject.get("sheetData"), SheetData.class);
+        SheetData sheetData = gson.fromJson(jsonObject, SheetData.class);
 
         // בדיקה אם כל הפרמטרים סופקו
         if (column == null || topLeft == null || bottomRight == null || sheetData == null) {

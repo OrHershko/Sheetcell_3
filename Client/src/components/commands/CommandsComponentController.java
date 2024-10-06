@@ -115,7 +115,7 @@ public class CommandsComponentController {
 
         // בקשת הזנת שם התא (למשל "A1")
         TextInputDialog inputDialog = new TextInputDialog();
-        inputDialog.setTitle("Select Cell");
+        inputDialog.setTitle("Design Cell");
         inputDialog.setHeaderText("Enter the cell ID (e.g., A1, B2) to modify:");
         inputDialog.setContentText("Cell ID:");
 
@@ -136,7 +136,7 @@ public class CommandsComponentController {
     private void setRowsHeightOnClick() {
         // יצירת דיאלוג להזנת מספר השורה
         TextInputDialog rowDialog = new TextInputDialog();
-        rowDialog.setTitle("Select Row");
+        rowDialog.setTitle("Set Row Height");
         rowDialog.setHeaderText("Select the row to change height");
         rowDialog.setContentText("Please enter the row number:");
 
@@ -190,7 +190,7 @@ public class CommandsComponentController {
     private void setColsWidthOnClick() {
         // יצירת דיאלוג להזנת אות העמודה (A, B, C...)
         TextInputDialog colDialog = new TextInputDialog();
-        colDialog.setTitle("Select Column");
+        colDialog.setTitle("Set Column Width");
         colDialog.setHeaderText("Select the column to change width");
         colDialog.setContentText("Please enter the column letter (A, B, C, ...):");
 
