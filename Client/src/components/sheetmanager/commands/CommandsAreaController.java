@@ -12,6 +12,9 @@ public class CommandsAreaController {
     @FXML
     private Button createPermissionRequestButton;
 
+    @FXML
+    private Button responseToPermissionRequestsButton;
+
     private SheetManagerController sheetManagerController;
 
     public void setSheetManagerController(SheetManagerController sheetManagerController) {
@@ -33,4 +36,10 @@ public class CommandsAreaController {
     private void createPermissionRequestOnClick() {
         sheetManagerController.showRequestPermissionPopUp();
     }
+
+    @FXML
+    private void responseToPermissionRequestsOnClick() {
+        sheetManagerController.showPermissionRequestResponsePopUp();
+    }
+
 }

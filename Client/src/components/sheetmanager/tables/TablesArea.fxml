@@ -22,7 +22,7 @@
       </Button>
       <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
          <children>
-            <TableView fx:id="sheetsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+            <TableView fx:id="sheetsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0" style="-fx-focus-color: black; -fx-faint-focus-color: transparent;">
                <columns>
                   <TableColumn fx:id="usernameColumn" minWidth="-Infinity" prefWidth="100.0" text="Username" />
                   <TableColumn fx:id="sheetNameColumn" minWidth="-Infinity" prefWidth="120.0" text="Sheet Name" />
@@ -37,7 +37,7 @@
       </AnchorPane>
       <AnchorPane layoutX="60.0" layoutY="56.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
          <children>
-            <TableView fx:id="permissionsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0">
+            <TableView fx:id="permissionsTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="500.0" style="-fx-focus-color: black; -fx-faint-focus-color: transparent;">
                <columns>
                   <TableColumn fx:id="permissionUsernameColumn" minWidth="-Infinity" prefWidth="100.0" text="Username" />
                   <TableColumn fx:id="permissionTypeColumn2" minWidth="-Infinity" prefWidth="120.0" text="Premission Type" />

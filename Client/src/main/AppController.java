@@ -126,9 +126,9 @@ public class AppController {
 
     private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
 
-    //private final Engine engine = new EngineImpl(new DTOFactoryImpl());
-
     private SheetData selectedSheet;
+
+    private boolean isReadOnly;
 
     @FXML
     public void initialize() {
@@ -159,6 +159,9 @@ public class AppController {
         actionLineComponentController.displayCellData(cell);
     }
 
+    public void setIsReadOnly(boolean isReadOnly) {
+        this.isReadOnly = isReadOnly;
+    }
 
     public void updateCellDataToEngine(String selectedCellId, String newValue) throws IOException {
         // בניית URL עם query parameters באמצעות HttpUrl

@@ -31,7 +31,12 @@ public class UploadFileServlet extends HttpServlet {
             try (InputStream inputStream = filePart.getInputStream()) {
                 ServletUtils.getEngine(getServletContext()).loadFile(inputStream, username);
                 out.println("File uploaded and processed successfully.");
-            } catch (Exception e) {
+            }
+            catch (IllegalArgumentException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(e.getMessage());
+            }
+            catch (Exception e) {
                 out.println("Failed to process XML: " + e.getMessage());
                 e.printStackTrace(out);
             }

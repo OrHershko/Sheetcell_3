@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 
-
-<ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.SheetManagerController">
+<ScrollPane prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.SheetManagerController">
    <content>
-      <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0">
+      <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="722.0">
          <children>
             <fx:include fx:id="tablesArea" source="tables/TablesArea.fxml" />
             <fx:include fx:id="commandsArea" source="commands/CommandsArea.fxml" />
          </children>
       </HBox>
    </content>
-   <padding>
-      <Insets bottom="20.0" right="20.0" />
-   </padding>
 </ScrollPane>

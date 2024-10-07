@@ -19,6 +19,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import main.AppController;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -193,7 +194,16 @@ public class TablesAreaController {
             });
         } else {
             Platform.runLater(() -> {
-                System.out.println("Failed to upload file, response code: " + responseCode);
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
+                    StringBuilder errorResponse = new StringBuilder();
+                    String errorLine;
+                    while ((errorLine = errorReader.readLine()) != null) {
+                        errorResponse.append(errorLine);
+                    }
+                    AppController.showErrorDialog("Failed to upload file", errorResponse.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
@@ -266,10 +276,20 @@ public class TablesAreaController {
 
 
     public void refreshPermissionTable() {
-        SheetData selectedSheet = sheetsTable.getSelectionModel().getSelectedItem();
-        if (selectedSheet != null) {
-            List<PermissionData> permissionDataList = getPermissionDataForSheet(selectedSheet);
-            updatePermissionTable(permissionDataList);
-        }
+        Platform.runLater(() -> {
+            try {
+                List<SheetData> sheetsDataList = fetchSheetsFromServer();
+                updateTableViewWithSheets(sheetsDataList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            SheetData sheetData = sheetsTable.getSelectionModel().getSelectedItem();
+
+            if (sheetData != null) {
+                List<PermissionData> permissionDataList = getPermissionDataForSheet(sheetData);
+                updatePermissionTable(permissionDataList);
+            }
+        });
     }
 }

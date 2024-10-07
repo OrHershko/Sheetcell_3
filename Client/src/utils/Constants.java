@@ -21,6 +21,7 @@ public class Constants {
     public final static String LOGIN_PAGE_FXML_RESOURCE_LOCATION = "/components/login/Login.fxml";
     public final static String SHEET_MANAGER_FXML_RESOURCE_LOCATION = "/components/sheetmanager/SheetManager.fxml";
     public final static String REQUEST_PERMISSION_FXML_RESOURCE_LOCATION = "/components/sheetmanager/commands/RequestPermissionPopUp.fxml";
+    public final static String PERMISSION_REQUEST_RESPONSE_FXML_RESOURCE_LOCATION = "/components/sheetmanager/commands/PermissionRequestResponsePopUp.fxml";
 
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
@@ -45,6 +46,8 @@ public class Constants {
     public final static String FILTER_SHEET_URL = FULL_SERVER_PATH + "/filterSheet";
     public final static String GET_NUM_OF_COLUMNS_IN_GRID_URL = FULL_SERVER_PATH + "/getNumOfColumnsInGrid";
     public final static String DYNAMIC_CALCULATION_URL = FULL_SERVER_PATH + "/dynamicCalculation";
+    public final static String APPROVE_PERMISSION = FULL_SERVER_PATH + "/approvePermission";
+    public final static String REJECT_PERMISSION = FULL_SERVER_PATH + "/rejectPermission";
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new GsonBuilder()

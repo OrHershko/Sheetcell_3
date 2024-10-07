@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.sheetmanager.commands.PermissionRequestResponseController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.85711669921875" minWidth="10.0" prefWidth="18.57145036969866" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="500.0" minWidth="10.0" prefWidth="500.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="194.28570556640625" minWidth="10.0" prefWidth="53.857160295758945" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints maxHeight="128.14286913190568" minHeight="10.0" prefHeight="23.571425574166426" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="247.57144464765275" minHeight="10.0" prefHeight="243.00000299726213" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+      <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <content>
+              <TableView fx:id="permissionTableView" prefWidth="450.0" style="-fx-focus-color: black; -fx-faint-focus-color: transparent;">
+                  <columns>
+                      <TableColumn fx:id="usernameColumn" prefWidth="76.00001966953278" text="Username" />
+                      <TableColumn fx:id="sheetNameColumn" prefWidth="105.7142562866211" text="Sheet Name" />
+                      <TableColumn fx:id="permissionRequestedColumn" prefWidth="140.0" text="Permission Requested" />
+                      <TableColumn fx:id="approveColumn" minWidth="0.0" prefWidth="67.4285888671875" text="Approve" />
+                      <TableColumn fx:id="rejectColumn" prefWidth="62.85711669921875" text="Reject" />
+                  </columns>
+              </TableView>
+         </content>
+         <GridPane.margin>
+            <Insets />
+         </GridPane.margin>
+      </ScrollPane>
+        <Button fx:id="submitButton" mnemonicParsing="false" onMouseClicked="#submitButtonOnClick" text="Submit" GridPane.columnIndex="2" GridPane.rowIndex="2">
+            <GridPane.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </GridPane.margin>
+        </Button>
+    </children>
+</GridPane>

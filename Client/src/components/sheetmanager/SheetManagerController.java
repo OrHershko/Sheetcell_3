@@ -2,8 +2,10 @@ package components.sheetmanager;
 
 import com.google.gson.Gson;
 import components.sheetmanager.commands.CommandsAreaController;
+import components.sheetmanager.commands.PermissionRequestResponseController;
 import components.sheetmanager.commands.RequestPermissionPopUpController;
 import components.sheetmanager.tables.TablesAreaController;
+import impl.sheet.PermissionData;
 import impl.sheet.SheetData;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,13 +17,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.AppController;
 import okhttp3.*;
-import utils.http.HttpClientUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static main.AppController.createConnection;
 import static main.AppController.showErrorDialog;
@@ -102,7 +104,7 @@ public class SheetManagerController {
                 requestPermissionPopUpController.setSheetManagerController(this);
                 requestPermissionPopUpController.setSheetData(selectedSheet);
                 Stage stage = new Stage();
-                stage.setTitle("Request permission");
+                stage.setTitle("Request Permission");
                 stage.setScene(new Scene(root));
                 stage.show();
             } catch (IOException e) {
@@ -114,12 +116,34 @@ public class SheetManagerController {
         }
     }
 
+    public void showPermissionRequestResponsePopUp() {
+        SheetData selectedSheet = tablesAreaController.getSelectedSheet();
+        if (selectedSheet != null) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(PERMISSION_REQUEST_RESPONSE_FXML_RESOURCE_LOCATION));
+            try {
+                Parent root = fxmlLoader.load();
+                PermissionRequestResponseController permissionRequestResponseController = fxmlLoader.getController();
+                permissionRequestResponseController.setSheetManagerController(this);
+                permissionRequestResponseController.loadPermissionRequests();
+                Stage stage = new Stage();
+                stage.setTitle("Permission Requests");
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showErrorDialog("Failed to load permission request response pop up", e.getMessage());
+            }
+        } else {
+            showErrorDialog("No sheet selected", "Please select a sheet to view permission requests for");
+        }
+    }
+
     public void createPermissionRequest(SheetData selectedSheet, String requestType) throws IOException {
         // בניית URL עם query parameters באמצעות HttpUrl
         String finalUrl = HttpUrl
                 .parse(ADD_PERMISSION)
                 .newBuilder()
-                .addQueryParameter("requestType", requestType)
+                .addQueryParameter("requestType", requestType.toUpperCase())
                 .addQueryParameter("username", username)
                 .build()
                 .toString();
@@ -148,9 +172,51 @@ public class SheetManagerController {
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new IOException("Failed to update cell, response code: " + responseCode);
         }
-
-        Platform.runLater(() -> {
+        else{
             tablesAreaController.refreshPermissionTable();
-        });
+        }
+    }
+
+    public List<PermissionData> getPermissionRequests() {
+        return tablesAreaController.getSelectedSheet().getPermissionData();
+    }
+
+    public void handlePermissionRequest(PermissionData permission, String requestURL) throws IOException {
+        // בניית URL עם query parameters באמצעות HttpUrl
+        String finalUrl = HttpUrl
+                .parse(requestURL)
+                .newBuilder()
+                .addQueryParameter("permissionType", permission.getPermissionType())
+                .addQueryParameter("username", username)
+                .build()
+                .toString();
+
+        // יצירת חיבור לשרת
+        URL url = new URL(finalUrl);
+        HttpURLConnection connection = createConnection(url);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        connection.setDoOutput(true);
+
+        // המרת SheetData ל-JSON
+        Gson gson = GSON_INSTANCE;
+        String sheetDataJson = gson.toJson(tablesAreaController.getSelectedSheet());
+
+        // המרת JsonObject למחרוזת JSON
+        byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
+
+        // שליחת הנתונים לשרת (SheetData כ-body)
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(postDataBytes);
+        }
+
+        // בדיקת קוד התגובה של השרת
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Failed to update permission in sheet, response code: " + responseCode);
+        }
+        else{
+            tablesAreaController.refreshPermissionTable();
+        }
     }
 }

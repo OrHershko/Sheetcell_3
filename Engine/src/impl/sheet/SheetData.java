@@ -14,7 +14,7 @@ public class SheetData {
         this.username = username;
         this.sheetName = sheetName;
         this.sheetSize = sheetSize;
-        permissionsData.add(new PermissionData(username, "OWNER", "APPROVED"));
+        permissionsData.add(new PermissionData(username, "OWNER", "APPROVED", sheetName));
     }
 
     public String getUsername() {
@@ -30,20 +30,22 @@ public class SheetData {
     }
 
     public void addNewPermissionRequest(String requestType, String username) {
-        permissionsData.add(new PermissionData(username, requestType, "PENDING"));
+        permissionsData.add(new PermissionData(username, requestType, "PENDING", sheetName));
     }
 
     public List<PermissionData> getPermissionData() { return permissionsData; }
 
     public String getPermissionTypeForUser(String usernameOfRequester) {
+        if(usernameOfRequester.equals(username)) {
+            return "OWNER";
+        }
+
         for (PermissionData permissionData : permissionsData) {
-            if (permissionData.getUsername().equals(usernameOfRequester) && permissionData.getPermissionType().equals("OWNER")) {
+            if (permissionData.getUsername().equals(usernameOfRequester)) {
                 return permissionData.getPermissionType();
             }
-            if (permissionData.getUsername().equals(usernameOfRequester) && !permissionData.getPermissionStatus().equals("APPROVED")) {
-                return "NO PERMISSION";
-            }
         }
+
         return "NO PERMISSION";
     }
 
@@ -70,5 +72,21 @@ public class SheetData {
             }
         }
         return false;
+    }
+
+    public void approvePermissionRequest(String username, String permissionType, String permissionStatus) {
+        for (PermissionData permissionData : permissionsData) {
+            if (permissionData.getUsername().equals(username) && permissionData.getPermissionType().equals(permissionType)) {
+                permissionData.setPermissionStatus(permissionStatus);
+            }
+        }
+    }
+
+    public void rejectPermissionRequest(String username, String permissionType, String rejected) {
+        for (PermissionData permissionData : permissionsData) {
+            if (permissionData.getUsername().equals(username) && permissionData.getPermissionType().equals(permissionType)) {
+                permissionData.setPermissionStatus(rejected);
+            }
+        }
     }
 }

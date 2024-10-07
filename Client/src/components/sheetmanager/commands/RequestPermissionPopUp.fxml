@@ -12,10 +12,10 @@
    <content>
       <VBox minHeight="-Infinity" minWidth="-Infinity" spacing="20.0">
          <children>
-            <Label fx:id="selectedSheetLabel" text="Selected Sheet:" />
+            <Label fx:id="selectedSheetLabel" text="Selected Sheet: " />
             <HBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
                <children>
-                  <Label text="Request Type : " />
+                  <Label text="Request Type: " />
                   <MenuButton fx:id="requestTypeMenuButton" mnemonicParsing="false" prefWidth="70.0" />
                </children>
             </HBox>

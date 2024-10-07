@@ -24,6 +24,8 @@ public class Sheet implements Serializable {
     private final static Map<Integer,Sheet> previousVersions = new HashMap<>();
     private final Map<String, Range> ranges = new HashMap<>();
     private String usernameOfOwner;
+    private Set<String> usersWithReadAccess = new HashSet<>();
+    private Set<String> usersWithWriteAccess = new HashSet<>();
 
 
     @Override
@@ -327,5 +329,13 @@ public class Sheet implements Serializable {
     public void deleteRange(String rangeName) {
         checkIfRangeExist(rangeName);
         ranges.remove(rangeName);
+    }
+
+    public void approveReaderPermission(String username) {
+        usersWithReadAccess.add(username);
+    }
+
+    public void approveWritePermission(String username) {
+        usersWithWriteAccess.add(username);
     }
 }

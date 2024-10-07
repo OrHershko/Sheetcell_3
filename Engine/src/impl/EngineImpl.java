@@ -54,6 +54,8 @@ public class EngineImpl implements Engine {
         Sheet currentSheet = setSheetFromSTL(currentSTLSheet);
         currentSheet.setUsernameOfOwner(username);
         SheetData currentSheetData = new SheetData(currentSheet.getUsernameOfOwner(), currentSheet.getName(), currentSheet.getNumOfRows() + "x" + currentSheet.getNumOfCols());
+        if(sheetsInMemory.keySet().stream().anyMatch(sheetData -> sheetData.getSheetName().equalsIgnoreCase(currentSheet.getName())))
+            throw new IllegalArgumentException("Sheet with the same name already exists.");
         sheetsInMemory.put(currentSheetData, currentSheet);
     }
 
@@ -452,5 +454,29 @@ public class EngineImpl implements Engine {
         sheetsInMemory.keySet().stream().filter(sheet -> sheet.equals(sheetData)).findFirst().ifPresent(sheet -> sheet.addNewPermissionRequest(requestType, usernameOfRequester));
     }
 
+    @Override
+    public void approvePermissionRequest(String permissionType, String username, SheetData sheetData) {
+        if(permissionType.equals("READER")){
+            sheetsInMemory.get(sheetData).approveReaderPermission(username);
+        }
+        else if(permissionType.equals("WRITER")){
+            sheetsInMemory.get(sheetData).approveWritePermission(username);
+        }
 
+        sheetsInMemory.keySet()
+                .stream()
+                .filter(sheet -> sheet.equals(sheetData))
+                .findFirst()
+                .ifPresent(sheet -> sheet.approvePermissionRequest(username, permissionType, "APPROVED"));
+
+    }
+
+    @Override
+    public void rejectPermissionRequest(String permissionType, String username, SheetData sheetData) {
+        sheetsInMemory.keySet()
+                .stream()
+                .filter(sheet -> sheet.equals(sheetData))
+                .findFirst()
+                .ifPresent(sheet -> sheet.rejectPermissionRequest(username, permissionType, "REJECTED"));
+    }
 }
