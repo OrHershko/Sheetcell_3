@@ -179,6 +179,7 @@ public class AppController {
                 .newBuilder()
                 .addQueryParameter("cellId", selectedCellId)
                 .addQueryParameter("newValue", newValue)
+                .addQueryParameter("username", usernameLabel.getText().replaceAll("Username: ", ""))
                 .build()
                 .toString();
 

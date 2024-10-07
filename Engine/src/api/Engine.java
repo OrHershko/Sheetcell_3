@@ -18,7 +18,7 @@ public interface Engine {
 
 //    void updateCellValue(String cellIdentity, CellValue value, String originalValue);
 
-    void updateCellValue(String cellIdentity, CellValue value, String originalValue, SheetData sheetData);
+    void updateCellValue(String cellIdentity, CellValue value, String originalValue, SheetData sheetData, String usernameOfUpdater);
 
     DTO getCellDTO(String cellIdentity, SheetData sheetData);
 

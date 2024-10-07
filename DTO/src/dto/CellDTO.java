@@ -15,6 +15,7 @@ public class CellDTO implements DTO {
     private final String originalValue;
     private final Set<String> cellsImInfluencing;
     private final Set<String> cellsImDependentOn;
+    private final String usernameOfUpdater;
 
 
 
@@ -25,6 +26,7 @@ public class CellDTO implements DTO {
         this.identity = identity;
         cellsImInfluencing = new HashSet<>();
         cellsImDependentOn = new HashSet<>();
+        usernameOfUpdater = "";
     }
 
     public CellDTO(Cell cell) {
@@ -34,8 +36,12 @@ public class CellDTO implements DTO {
         originalValue = cell.getOriginalValue();
         cellsImInfluencing = cell.getCellsImInfluencing().stream().map(Cell::getIdentity).collect(Collectors.toSet());
         cellsImDependentOn = cell.getCellsImDependentOn().stream().map(Cell::getIdentity).collect(Collectors.toSet());
+        usernameOfUpdater = cell.getUsernameOfUpdater();
     }
 
+    public String getUsernameOfUpdater() {
+        return usernameOfUpdater;
+    }
 
     public int getVersion() {
         return version;

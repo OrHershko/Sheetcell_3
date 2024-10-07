@@ -102,22 +102,22 @@ public class Sheet implements Serializable {
         return activeCells.get(cellIdentity);
     }
 
-    public void updateOrCreateCell(String cellIdentity, CellValue value, String originalValue, boolean isFromFile) {
+    public void updateOrCreateCell(String cellIdentity, CellValue value, String originalValue, boolean isFromFile, String usernameOfUpdater) {
         Cell cell = getCell(cellIdentity);
         //If cell is not in active cells
         if (cell == null){
-            createNewCell(cellIdentity, value, originalValue, isFromFile);
+            createNewCell(cellIdentity, value, originalValue, isFromFile, usernameOfUpdater);
         }
         else{
-            cell.updateValues(value,originalValue,isFromFile);
+            cell.updateValues(value,originalValue,isFromFile, usernameOfUpdater);
         }
         version++;
     }
 
-    private void createNewCell(String cellIdentity, CellValue value, String originalValue, boolean isFromFile) {
+    private void createNewCell(String cellIdentity, CellValue value, String originalValue, boolean isFromFile, String usernameOfUpdater) {
         Cell cell = new Cell(this, cellIdentity);
         activeCells.put(cellIdentity, cell);
-        cell.updateValues(value, originalValue, isFromFile);
+        cell.updateValues(value, originalValue, isFromFile, usernameOfUpdater);
     }
 
 
@@ -170,7 +170,7 @@ public class Sheet implements Serializable {
         for (STLCell stlCell : stlCellsList) {
             String cellIdentity = stlCell.getColumn().toUpperCase() + stlCell.getRow();
             String orgValue = stlCell.getSTLOriginalValue();
-            createNewCell(cellIdentity, EngineImpl.convertStringToCellValue(orgValue), orgValue, true);
+            createNewCell(cellIdentity, EngineImpl.convertStringToCellValue(orgValue), orgValue, true, "");
             changedCellsCount++;
         }
 
@@ -337,5 +337,11 @@ public class Sheet implements Serializable {
 
     public void approveWritePermission(String username) {
         usersWithWriteAccess.add(username);
+    }
+
+    public void setUsernameToActiveCells(String username) {
+        for(Cell cell : activeCells.values()){
+            cell.setUsernameOfUpdater(username);
+        }
     }
 }

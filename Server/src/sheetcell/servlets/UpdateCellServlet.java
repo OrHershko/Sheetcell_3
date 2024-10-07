@@ -26,6 +26,7 @@ public class UpdateCellServlet extends HttpServlet {
         // Retrieve query parameters for cellId and newValue
         String cellId = request.getParameter("cellId");
         String newValueStr = request.getParameter("newValue");
+        String usernameOfUpdater = request.getParameter("username");
 
         // Parse the SheetData from the request body (JSON)
         BufferedReader reader = request.getReader();
@@ -33,7 +34,7 @@ public class UpdateCellServlet extends HttpServlet {
         SheetData sheetData = gson.fromJson(reader, SheetData.class);
 
         // Check that parameters are provided
-        if (cellId == null || newValueStr == null || sheetData == null) {
+        if (cellId == null || newValueStr == null || sheetData == null || usernameOfUpdater == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Missing cellId, newValue, or sheetData parameters.");
             return;
@@ -44,7 +45,7 @@ public class UpdateCellServlet extends HttpServlet {
             CellValue newCellValue = EngineImpl.convertStringToCellValue(newValueStr);
 
             // Update the cell in the engine
-            engine.updateCellValue(cellId, newCellValue, newValueStr, sheetData);
+            engine.updateCellValue(cellId, newCellValue, newValueStr, sheetData, usernameOfUpdater);
 
             // Send success response
             response.setStatus(HttpServletResponse.SC_OK);

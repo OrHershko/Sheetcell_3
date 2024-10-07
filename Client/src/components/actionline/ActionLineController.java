@@ -57,7 +57,7 @@ public class ActionLineController {
         originalCellValue.setText("Original Cell Value: " + cell.getOriginalValue());
         if(cell.getVersion() != 0)
         {
-            lastUpdateCellVersion.setText("Last Update Cell Version: " + cell.getVersion());
+            lastUpdateCellVersion.setText("Last Update Cell Version: " + cell.getVersion() + " by: " + cell.getUsernameOfUpdater());
         }
         else {
             lastUpdateCellVersion.setText("Last Update Cell Version: ");

@@ -16,6 +16,7 @@ public class Cell implements Serializable {
     private Set<Cell> cellsImInfluencing = new HashSet<>();
     private Set<Cell> cellsImDependentOn = new HashSet<>();
     private int version = 0;
+    private String usernameOfUpdater;
 
     public Cell(Sheet sheet, String identity) {
         mySheet = sheet;
@@ -31,6 +32,7 @@ public class Cell implements Serializable {
         cellsImInfluencing = new HashSet<>(cellToCopy.getCellsImInfluencing());
         cellsImDependentOn = new HashSet<>(cellToCopy.getCellsImDependentOn());
         version = cellToCopy.getVersion();
+        usernameOfUpdater = cellToCopy.getUsernameOfUpdater();
     }
 
     public static String getCellIDFromRowCol(int row, int col) {
@@ -43,11 +45,16 @@ public class Cell implements Serializable {
     }
 
 
-    public void updateValues(CellValue effectiveValue, String originalValue, boolean isFromFile) {
+    public void updateValues(CellValue effectiveValue, String originalValue, boolean isFromFile, String usernameOfUpdater) {
         effectiveValue.setActivatingCell(this);
         this.effectiveValue = effectiveValue;
         this.originalValue = originalValue;
         version++;
+        this.usernameOfUpdater = usernameOfUpdater;
+    }
+
+    public String getUsernameOfUpdater() {
+        return usernameOfUpdater;
     }
 
     public int getVersion() {
@@ -98,5 +105,21 @@ public class Cell implements Serializable {
 
     public void setCellsImInfluencing(Set<Cell> cellsImInfluencing) {
         this.cellsImInfluencing = cellsImInfluencing;
+    }
+
+    public void setUsernameOfUpdaterToInfluencedCells(String usernameOfUpdater) {
+        for (Cell cell : cellsImInfluencing) {
+            cell.usernameOfUpdater = usernameOfUpdater;
+            cell.UpdateVersion();
+            cell.setUsernameOfUpdaterToInfluencedCells(usernameOfUpdater);
+        }
+    }
+
+    private void UpdateVersion() {
+        version++;
+    }
+
+    public void setUsernameOfUpdater(String username) {
+        usernameOfUpdater = username;
     }
 }

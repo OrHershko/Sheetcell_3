@@ -53,6 +53,7 @@ public class EngineImpl implements Engine {
         checkDataValidity(currentSTLSheet);
         Sheet currentSheet = setSheetFromSTL(currentSTLSheet);
         currentSheet.setUsernameOfOwner(username);
+        currentSheet.setUsernameToActiveCells(username);
         SheetData currentSheetData = new SheetData(currentSheet.getUsernameOfOwner(), currentSheet.getName(), currentSheet.getNumOfRows() + "x" + currentSheet.getNumOfCols());
         if(sheetsInMemory.keySet().stream().anyMatch(sheetData -> sheetData.getSheetName().equalsIgnoreCase(currentSheet.getName())))
             throw new IllegalArgumentException("Sheet with the same name already exists.");
@@ -140,14 +141,14 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void updateCellValue(String cellIdentity, CellValue value, String originalValue, SheetData sheetData) {
+    public void updateCellValue(String cellIdentity, CellValue value, String originalValue, SheetData sheetData, String usernameOfUpdater) {
         Sheet currentSheetToUpdate = sheetsInMemory.get(sheetData);
         if (currentSheetToUpdate == null) {
             throw new IllegalArgumentException("Sheet not found for the given sheetData");
         }
         Sheet alternativeSheet = currentSheetToUpdate.clone();
         List<Cell> topologicalOrder = alternativeSheet.sortActiveCellsTopologicallyByDFS();
-        alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false);
+        alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false, usernameOfUpdater);
         Cell updatedCell = alternativeSheet.getCell(cellIdentity);
 
         if(!topologicalOrder.contains(updatedCell))
@@ -155,7 +156,8 @@ public class EngineImpl implements Engine {
 
         alternativeSheet.recalculateByTopologicalOrder(topologicalOrder);
         alternativeSheet.calculateChangedCells(updatedCell);
-        Sheet.addToPreviousVersions(currentSheetToUpdate);//TODO
+        updatedCell.setUsernameOfUpdaterToInfluencedCells(usernameOfUpdater);
+        Sheet.addToPreviousVersions(currentSheetToUpdate);
         sheetsInMemory.put(sheetData, alternativeSheet);
     }
 
@@ -335,7 +337,7 @@ public class EngineImpl implements Engine {
 
             for (Cell cell : cellsInRow) {
                 String newCellID = Cell.getCellIDFromRowCol(currentRow, currentCol);
-                modifiedSheet.updateOrCreateCell(newCellID, cell.getEffectiveValue(), cell.getOriginalValue(), false);
+                modifiedSheet.updateOrCreateCell(newCellID, cell.getEffectiveValue(), cell.getOriginalValue(), false, cell.getUsernameOfUpdater());
 
                 currentCol++;
             }
@@ -350,7 +352,7 @@ public class EngineImpl implements Engine {
                 String cellId = Cell.getCellIDFromRowCol(row, col);
                 Cell cell = modifiedSheet.getActiveCells().get(cellId);
                 if (cell != null) {
-                    modifiedSheet.updateOrCreateCell(cellId, new StringValue(""), "", false);
+                    modifiedSheet.updateOrCreateCell(cellId, new StringValue(""), "", false, cell.getUsernameOfUpdater());
                 }
             }
         }
@@ -427,7 +429,7 @@ public class EngineImpl implements Engine {
     public DTO DynamicCalculationOnSheet(String cellIdentity, CellValue value, String originalValue, SheetData sheetData) {
         Sheet alternativeSheet = sheetsInMemory.get(sheetData).clone();
         List<Cell> topologicalOrder = alternativeSheet.sortActiveCellsTopologicallyByDFS();
-        alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false);
+        alternativeSheet.updateOrCreateCell(cellIdentity, value, originalValue, false, "");
         Cell updatedCell = alternativeSheet.getCell(cellIdentity);
 
         if(!topologicalOrder.contains(updatedCell))
