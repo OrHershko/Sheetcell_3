@@ -41,7 +41,7 @@ public class SheetData {
         }
 
         for (PermissionData permissionData : permissionsData) {
-            if (permissionData.getUsername().equals(usernameOfRequester)) {
+            if (permissionData.getPermissionStatus().equals("APPROVED") && permissionData.getUsername().equals(usernameOfRequester)) {
                 return permissionData.getPermissionType();
             }
         }

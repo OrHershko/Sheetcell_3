@@ -44,6 +44,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.HttpUrl;
 import utils.CellValueAdapter;
+import utils.Permissions;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -159,8 +160,16 @@ public class AppController {
         actionLineComponentController.displayCellData(cell);
     }
 
-    public void setIsReadOnly(boolean isReadOnly) {
-        this.isReadOnly = isReadOnly;
+    public void setIsReadOnly(Permissions permission) {
+        if(permission == Permissions.READER) {
+            isReadOnly = true;
+            actionLineComponentController.disableActionLine(true);
+            commandsComponentController.disableCommandsComponent(true);
+            rangesComponentController.disableRangesComponent(true);
+        }
+        else{
+            isReadOnly = false;
+        }
     }
 
     public void updateCellDataToEngine(String selectedCellId, String newValue) throws IOException {
@@ -1034,5 +1043,9 @@ public class AppController {
     public void setUsername(String username) {
         usernameLabel.setText(usernameLabel.getText() + username);
         usernameLabel.getStyleClass().add("username-label");
+    }
+
+    public boolean getIsReadOnly() {
+        return isReadOnly;
     }
 }

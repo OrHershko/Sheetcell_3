@@ -184,14 +184,7 @@ public class TablesAreaController {
     private void handleServerResponse(HttpURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            Platform.runLater(() -> {
-                try {
-                    List<SheetData> sheetsDataList = fetchSheetsFromServer();
-                    updateTableViewWithSheets(sheetsDataList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            refreshSheetsInTable();
         } else {
             Platform.runLater(() -> {
                 try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
@@ -206,6 +199,17 @@ public class TablesAreaController {
                 }
             });
         }
+    }
+
+    private void refreshSheetsInTable() {
+        Platform.runLater(() -> {
+            try {
+                List<SheetData> sheetsDataList = fetchSheetsFromServer();
+                updateTableViewWithSheets(sheetsDataList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void updateTableViewWithSheets(List<SheetData> sheetsDataList) {
@@ -261,6 +265,7 @@ public class TablesAreaController {
     }
 
     public SheetData getSelectedSheet() {
+        refreshSheetsInTable();
         return sheetsTable.getSelectionModel().getSelectedItem();
     }
 

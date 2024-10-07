@@ -3,6 +3,8 @@ package components.sheetmanager.commands;
 import components.sheetmanager.SheetManagerController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import main.AppController;
+import utils.Permissions;
 
 public class CommandsAreaController {
 
@@ -24,12 +26,13 @@ public class CommandsAreaController {
     @FXML
     private void viewSheetOnClick() {
 
-        if(sheetManagerController.isPermittedToViewSheet()) {
-            sheetManagerController.startMainApp();
+        Permissions permission = Permissions.valueOf(sheetManagerController.getPermissionTypeForUser(sheetManagerController.getUsername()));
+
+        if (permission != Permissions.NO_PERMISSION) {
+            sheetManagerController.startMainApp(permission);
         } else {
             sheetManagerController.showPermissionErrorDialog();
         }
-
     }
 
     @FXML
@@ -39,7 +42,16 @@ public class CommandsAreaController {
 
     @FXML
     private void responseToPermissionRequestsOnClick() {
-        sheetManagerController.showPermissionRequestResponsePopUp();
+        if(sheetManagerController.getPermissionTypeForUser(sheetManagerController.getUsername()).equals("OWNER"))
+        {
+            sheetManagerController.showPermissionRequestResponsePopUp();
+        }
+        else
+        {
+            AppController.showErrorDialog("Error","You don't have permission to view this page.");
+
+        }
+
     }
 
 }

@@ -144,4 +144,10 @@ public class RangesController {
         }
     }
 
+    public void disableRangesComponent(boolean b) {
+        addNewRangeButton.setDisable(b);
+        deleteRangeButton.setDisable(b);
+        markRangeButton.setDisable(b);
+        unmarkRangeButton.setDisable(b);
+    }
 }

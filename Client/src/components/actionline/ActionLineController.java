@@ -62,8 +62,12 @@ public class ActionLineController {
         else {
             lastUpdateCellVersion.setText("Last Update Cell Version: ");
         }
-        updateCellButton.setDisable(false);
-        textField.setDisable(false);
+
+        if(!appController.getIsReadOnly()){
+            updateCellButton.setDisable(false);
+            textField.setDisable(false);
+        }
+
         dynamicCalculationButton.setDisable(!appController.isCellValueNumeric(currentCellId));
     }
 
@@ -101,4 +105,8 @@ public class ActionLineController {
         appController.showCurrentSheetOnGrid();
     }
 
+    public void disableActionLine(boolean b) {
+        updateCellButton.setDisable(b);
+        textField.setDisable(b);
+    }
 }

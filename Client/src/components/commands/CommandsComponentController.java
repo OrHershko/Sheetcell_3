@@ -280,4 +280,10 @@ public class CommandsComponentController {
     }
 
 
+    public void disableCommandsComponent(boolean b) {
+        setRowHeightButton.setDisable(b);
+        setColWidthButton.setDisable(b);
+        setColAlignmentButton.setDisable(b);
+        designCell.setDisable(b);
+    }
 }

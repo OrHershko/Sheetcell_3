@@ -17,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.AppController;
 import okhttp3.*;
+import utils.Permissions;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,7 +53,7 @@ public class SheetManagerController {
         commandsAreaController.setSheetManagerController(this);
     }
 
-    public void startMainApp() {
+    public void startMainApp(Permissions permission) {
         URL appPage = getClass().getResource(MAIN_PAGE_FXML_RESOURCE_LOCATION);
         Platform.runLater(() -> {
             try {
@@ -63,6 +64,7 @@ public class SheetManagerController {
                 appController = fxmlLoader.getController();
                 appController.setNewSelectedSheet(tablesAreaController.getSelectedSheet());
                 appController.setUsername(username);
+                appController.setIsReadOnly(permission);
                 Scene scene = new Scene(root,1200,600);
                 appController.applySkin("default");
                 primaryStage.setTitle("Sheetcell");
@@ -187,7 +189,7 @@ public class SheetManagerController {
                 .parse(requestURL)
                 .newBuilder()
                 .addQueryParameter("permissionType", permission.getPermissionType())
-                .addQueryParameter("username", username)
+                .addQueryParameter("username", permission.getUsername())
                 .build()
                 .toString();
 
@@ -218,5 +220,9 @@ public class SheetManagerController {
         else{
             tablesAreaController.refreshPermissionTable();
         }
+    }
+
+    public String getPermissionTypeForUser(String username) {
+        return tablesAreaController.getSelectedSheet().getPermissionTypeForUser(username);
     }
 }
