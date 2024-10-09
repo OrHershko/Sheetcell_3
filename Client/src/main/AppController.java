@@ -55,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static impl.cell.Cell.getColumnFromCellID;
 import static impl.cell.Cell.getRowFromCellID;
@@ -123,6 +126,11 @@ public class AppController {
     @FXML
     private GraphComponentController graphComponentController;
 
+    @FXML
+    private Button updateVersionButton;
+
+    private int currentVersionDisplayed;
+
     private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
 
     private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
@@ -141,12 +149,35 @@ public class AppController {
         graphComponentController.setAppController(this);
         versionsSelectorComponentController.setAppController(this);
         bonusesComponentController.setAppController(this);
-
+        updateVersionButton.setDisable(true);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        startVersionCheck(scheduler);
         try {
             buildSheetPopUpStage();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startVersionCheck(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                int serverVersion = getUpdatedSheetDTOFromServer().getVersion();
+                if (serverVersion > currentVersionDisplayed) {
+                    Platform.runLater(() -> {
+                        updateVersionButton.setDisable(false);
+                        updateVersionButton.getStyleClass().add("highlighted-button");
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, 0, 10, TimeUnit.SECONDS);
+    }
+
+    @FXML
+    public void updateVersionOnClick(){
+
     }
 
     @FXML
@@ -228,6 +259,7 @@ public class AppController {
     // Refresh grid after cell update
     private void refreshGridAfterCellUpdate(String selectedCellId) throws IOException {
         SheetDTO updatedSheet = getUpdatedSheetDTOFromServer();
+        currentVersionDisplayed = updatedSheet.getVersion();
         mainGridComponentController.createInnerCellsInGrid(updatedSheet);
         mainGridComponentController.activateMouseClickedOfCell(selectedCellId);
         versionsSelectorComponentController.updateVersionsSelector();
@@ -262,7 +294,6 @@ public class AppController {
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // שימוש ב-Gson כדי להמיר את התגובה ל-SheetDTO
                 return gson.fromJson(bufferedReader, SheetDTO.class);
             }
         } else {
@@ -1035,6 +1066,7 @@ public class AppController {
     public void setNewSelectedSheet(SheetData selectedSheet) throws IOException {
         this.selectedSheet = selectedSheet;
         SheetDTO sheetDTO = getUpdatedSheetDTOFromServer();
+        currentVersionDisplayed = sheetDTO.getVersion();
         mainGridComponentController.createDynamicGrid(sheetDTO);
         mainGridComponentController.buildGridBoundaries(sheetDTO);
         mainGridComponentController.createInnerCellsInGrid(sheetDTO);

@@ -42,7 +42,7 @@
          <top>
             <VBox BorderPane.alignment="CENTER">
                <children>
-                  <HBox alignment="CENTER_LEFT">
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <VBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
@@ -56,6 +56,11 @@
                            </font>
                         </Label>
                         <fx:include fx:id="bonusesComponent" source="../components/bonuses/Bonuses.fxml" />
+                        <Button fx:id="updateVersionButton" mnemonicParsing="false" onMouseClicked="#updateVersionOnClick" style="-fx-background-color: #c0f07d;" text="Update To The Latest Version">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
                      </children>
                   </HBox>
                   <HBox minHeight="-Infinity" minWidth="-Infinity">
