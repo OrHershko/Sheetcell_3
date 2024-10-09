@@ -166,18 +166,18 @@ public class AppController {
                 if (serverVersion > currentVersionDisplayed) {
                     Platform.runLater(() -> {
                         updateVersionButton.setDisable(false);
-                        updateVersionButton.getStyleClass().add("highlighted-button");
                     });
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
     @FXML
-    public void updateVersionOnClick(){
-
+    public void updateVersionOnClick() throws IOException {
+        setNewSelectedSheet(selectedSheet);
+        updateVersionButton.setDisable(true);
     }
 
     @FXML
@@ -204,6 +204,12 @@ public class AppController {
     }
 
     public void updateCellDataToEngine(String selectedCellId, String newValue) throws IOException {
+
+        if(!updateVersionButton.isDisable()){
+            showErrorDialog("Error", "Unable to apply changes: A newer version of the sheet is available. To make updates, please switch to the latest version.");
+            return;
+        }
+
         // בניית URL עם query parameters באמצעות HttpUrl
         String finalUrl = HttpUrl
                 .parse(UPDATE_CELL)
@@ -967,11 +973,6 @@ public class AppController {
             throw new IOException("Failed to perform dynamic calculation, response code: " + responseCode);
         }
     }
-
-
-//    public void showCurrentSheetOnGrid() throws IOException {
-//        mainGridComponentController.createInnerCellsInGrid((SheetDTO) engine.getSheetDTO(selectedSheet));
-//    }
 
     public void showCurrentSheetOnGrid() throws IOException {
         // בניית URL עבור הבקשה לקבלת הגיליון הנוכחי
