@@ -20,7 +20,6 @@ import dto.RangeDTO;
 import dto.SheetDTO;
 import impl.EngineImpl;
 import impl.cell.Cell;
-import impl.cell.value.FunctionValue;
 import impl.cell.value.NumericValue;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -115,10 +114,8 @@ public class AppController {
 
     private final Engine engine = new EngineImpl(new DTOFactoryImpl());
 
-    private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
-
-    private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
-
+    private Stage sheetPopUpStage;  // Singleton instance for the popup Stage
+    private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // Property for the previous version number being viewed
 
     @FXML
     public void initialize() {
@@ -192,7 +189,6 @@ public class AppController {
         }
     }
 
-    // פונקציה להצגת הודעת שגיאה
     public static void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

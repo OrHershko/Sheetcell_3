@@ -3,7 +3,6 @@ package components.loadfile;
 import components.bonuses.BonusesController;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
-import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

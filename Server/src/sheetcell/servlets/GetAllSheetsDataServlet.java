@@ -1,8 +1,6 @@
 package sheetcell.servlets;
 
-import api.DTO;
 import com.google.gson.Gson;
-import dto.SheetDTO;
 import impl.sheet.SheetData;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import sheetcell.utils.ServletUtils;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/getAllSheetsData")

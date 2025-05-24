@@ -2,7 +2,6 @@ package main;
 
 import api.CellValue;
 import api.DTO;
-import api.Engine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -18,10 +17,8 @@ import components.ranges.RangesController;
 import components.sortandfilter.SortAndFilterController;
 import components.versions.VersionsSelectorComponentController;
 import dto.CellDTO;
-import dto.DTOFactoryImpl;
 import dto.RangeDTO;
 import dto.SheetDTO;
-import impl.EngineImpl;
 import impl.cell.Cell;
 import impl.cell.value.NumericValue;
 import impl.sheet.SheetData;
@@ -38,8 +35,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.HttpUrl;
@@ -131,10 +126,8 @@ public class AppController {
 
     private int currentVersionDisplayed;
 
-    private Stage sheetPopUpStage;  // משתנה סינגלטון עבור ה-Stage
-
-    private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // נכס עבור מספר הגרסה
-
+    private Stage sheetPopUpStage;  // Singleton instance for the popup Stage
+    private final IntegerProperty currentPreviousVersion = new SimpleIntegerProperty();  // Property for the previous version number being viewed
     private SheetData selectedSheet;
 
     private boolean isReadOnly;
@@ -210,7 +203,6 @@ public class AppController {
             return;
         }
 
-        // בניית URL עם query parameters באמצעות HttpUrl
         String finalUrl = HttpUrl
                 .parse(UPDATE_CELL)
                 .newBuilder()
@@ -220,26 +212,21 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = createConnection(url);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // המרת JsonObject למחרוזת JSON
         byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
 
-        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new IOException("Failed to update cell, response code: " + responseCode);
@@ -272,17 +259,14 @@ public class AppController {
     }
 
     private SheetDTO getUpdatedSheetDTOFromServer() throws IOException {
-        // בניית URL לשרת
         URL url = new URL(GET_SHEET_DTO);
 
-        // פתיחת חיבור לשרת
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
-        connection.setDoOutput(true); // מאפשר כתיבת תוכן בבקשת ה-POST
+        connection.setDoOutput(true); 
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
 
-        // המרת אובייקט ה-SheetData ל-JSON ושליחתו
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(CellValue.class, new CellValueAdapter())
                 .create();
@@ -293,7 +277,6 @@ public class AppController {
             os.write(input, 0, input.length);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
@@ -331,7 +314,6 @@ public class AppController {
         }
     }
 
-    // פונקציה להצגת הודעת שגיאה
     public static void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -383,14 +365,12 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
@@ -399,7 +379,6 @@ public class AppController {
             os.write(input, 0, input.length);
         }
 
-        // בדיקת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             System.out.println("Range added successfully.");
@@ -447,7 +426,6 @@ public class AppController {
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
@@ -466,7 +444,6 @@ public class AppController {
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-RangeDTO
                 Gson gson = GSON_INSTANCE;
                 return gson.fromJson(bufferedReader, RangeDTO.class);
             }
@@ -478,37 +455,32 @@ public class AppController {
 
     public Map<Integer, DTO> getSheetsPreviousVersionsDTO() throws IOException {
         String finalUrl = Objects.requireNonNull(HttpUrl
-                        .parse(GET_SHEET_VERSIONS_ENDPOINT)) // תחליף ב-URL המתאים לשרת
+                        .parse(GET_SHEET_VERSIONS_ENDPOINT)) 
                 .url()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST"); // אתה יכול לשנות ל-GET אם אין צורך לשלוח תוכן בגוף הבקשה
+        connection.setRequestMethod("POST"); 
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON ושליחתו בגוף הבקשה (אם צריך לשלוח מידע על הגיליון הנבחר)
         Gson gson = GSON_INSTANCE;
-        String sheetDataJson = gson.toJson(selectedSheet); // selectedSheet זה האובייקט הנבחר
+        String sheetDataJson = gson.toJson(selectedSheet); 
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new IOException("Failed to get previous sheet versions, response code: " + responseCode);
         }
 
-        // קריאת התגובה מהשרת
         try (InputStream inputStream = connection.getInputStream();
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-            // המרת התגובה ל-Map של גרסאות
             Type type = new TypeToken<Map<Integer, SheetDTO>>() {
             }.getType();
             return gson.fromJson(bufferedReader, type);
@@ -583,24 +555,20 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection deleteConnection = (HttpURLConnection) url.openConnection();
         deleteConnection.setRequestMethod("POST");
         deleteConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         deleteConnection.setDoOutput(true);
 
-        // המרת selectedSheet ל-JSON
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // שליחת SheetData כ-body
         try (OutputStream os = deleteConnection.getOutputStream()) {
             byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
-        // בדיקת קוד התגובה מהשרת
         int responseCode = deleteConnection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(deleteConnection.getErrorStream(), "utf-8"))) {
@@ -621,7 +589,6 @@ public class AppController {
 //                && engine.isCellInBounds(getRowFromCellID(bottomRight) - 1, getColumnFromCellID(bottomRight) - 1, selectedSheet);
 //    }
     public boolean checkRangeOfCells(String topLeft, String bottomRight) throws IOException {
-        // בניית URL עם query parameters עבור topLeft ו-bottomRight
         String finalUrl = HttpUrl
                 .parse(CHECK_RANGE_OF_CELLS)
                 .newBuilder()
@@ -630,14 +597,12 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
@@ -646,14 +611,12 @@ public class AppController {
             os.write(input, 0, input.length);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // קריאת התשובה (אם התאים בטווח)
                 return gson.fromJson(bufferedReader, Boolean.class);
             }
         } else {
@@ -678,7 +641,6 @@ public class AppController {
 //    }
 
     public void sortSheetByColumns(List<String> columnToSortBy, String topLeft, String bottomRight) throws IOException {
-        // בניית URL עם query parameters עבור columnToSortBy, topLeft, ו-bottomRight
         String finalUrl = HttpUrl
                 .parse(SORT_SHEET_BY_COLUMNS)
                 .newBuilder()
@@ -687,14 +649,12 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת הנתונים ל-JSON (רשימת העמודות וה-SheetData)
         Gson gson = GSON_INSTANCE;
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("columnToSortBy", gson.toJsonTree(columnToSortBy));
@@ -705,22 +665,18 @@ public class AppController {
 
         byte[] postDataBytes = jsonInputString.getBytes(StandardCharsets.UTF_8);
 
-        // שליחת הבקשה לשרת
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-SheetDTO
                 SheetDTO sortedSheetDTO = gson.fromJson(bufferedReader, SheetDTO.class);
 
-                // הצגת הגיליון הממויין בחלון פופ-אפ
                 displaySheetPopUp(sortedSheetDTO, topLeft, bottomRight);
             }
         } else {
@@ -734,7 +690,6 @@ public class AppController {
 //    }
 
     public Set<String> getValuesFromColumn(String column, String topLeft, String bottomRight) throws IOException {
-        // בניית URL עם query parameters עבור column, topLeft, ו-bottomRight
         String finalUrl = HttpUrl
                 .parse(GET_VALUES_FROM_COLUMN)
                 .newBuilder()
@@ -744,14 +699,12 @@ public class AppController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת selectedSheet ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
@@ -760,14 +713,12 @@ public class AppController {
             os.write(input, 0, input.length);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-Set<String>
                 Type setType = new TypeToken<Set<String>>(){}.getType();
                 return gson.fromJson(bufferedReader, setType);
             }
@@ -788,44 +739,37 @@ public class AppController {
 //
 //    }
     public void filter(Map<String, Set<String>> colToSelectedValues, String topLeft, String bottomRight) throws IOException {
-        // בניית URL עם query parameters עבור topLeft ו-bottomRight
         String finalUrl = HttpUrl
-                .parse(FILTER_SHEET_URL) // קבוע עם ה-URL לפילטר של הגיליון
+                .parse(FILTER_SHEET_URL) 
                 .newBuilder()
                 .addQueryParameter("topLeft", topLeft)
                 .addQueryParameter("bottomRight", bottomRight)
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת map colToSelectedValues ל-JSON
         Gson gson = GSON_INSTANCE;
         JsonObject requestBody = new JsonObject();
-        requestBody.add("colToSelectedValues", gson.toJsonTree(colToSelectedValues));  // המרת המפה ל-JSON
-        requestBody.add("sheetData", gson.toJsonTree(selectedSheet)); // המרת selectedSheet ל-JSON
+        requestBody.add("colToSelectedValues", gson.toJsonTree(colToSelectedValues));  
+        requestBody.add("sheetData", gson.toJsonTree(selectedSheet)); 
 
-        // המרת JsonObject למחרוזת JSON ושליחתו לשרת
         byte[] postDataBytes = requestBody.toString().getBytes(StandardCharsets.UTF_8);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-SheetDTO
                 SheetDTO filteredSheetDTO = gson.fromJson(bufferedReader, SheetDTO.class);
-                // הצגת הגיליון המפולטר
                 displaySheetPopUp(filteredSheetDTO, topLeft, bottomRight);
             }
         } else {
@@ -884,21 +828,18 @@ public class AppController {
 //    }
 
     public int getNumOfColumnsInGrid() throws IOException {
-        // בניית URL עם query parameters עבור הגיליון הנבחר
         String finalUrl = HttpUrl
-                .parse(GET_NUM_OF_COLUMNS_IN_GRID_URL) // קבוע עם ה-URL לפונקציה בשרת
+                .parse(GET_NUM_OF_COLUMNS_IN_GRID_URL) 
                 .newBuilder()
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
@@ -907,14 +848,12 @@ public class AppController {
             os.write(input, 0, input.length);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // קבלת מספר העמודות המוחזר מהשרת
                 return gson.fromJson(bufferedReader, Integer.class);
             }
         } else {
@@ -932,40 +871,34 @@ public class AppController {
 //    }
 
     public void showDynamicCalculation(String selectedCellId, String orgValue) throws IOException {
-        // בניית URL עם query parameters עבור ה-cellId ו-orgValue
         String finalUrl = HttpUrl
-                .parse(DYNAMIC_CALCULATION_URL) // קבוע עם ה-URL לפונקציה בשרת
+                .parse(DYNAMIC_CALCULATION_URL) 
                 .newBuilder()
                 .addQueryParameter("cellId", selectedCellId)
                 .addQueryParameter("orgValue", orgValue)
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-SheetDTO והצגת החישוב הדינמי
                 SheetDTO sheetDTO = gson.fromJson(bufferedReader, SheetDTO.class);
                 mainGridComponentController.createInnerCellsInGrid(sheetDTO);
             }
@@ -975,38 +908,32 @@ public class AppController {
     }
 
     public void showCurrentSheetOnGrid() throws IOException {
-        // בניית URL עבור הבקשה לקבלת הגיליון הנוכחי
         String finalUrl = HttpUrl
-                .parse(GET_SHEET_DTO) // קבוע עם ה-URL לפונקציה בשרת
+                .parse(GET_SHEET_DTO) 
                 .newBuilder()
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON ושליחתו בגוף הבקשה
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = sheetDataJson.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
-        // קבלת תגובת השרת
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (InputStream inputStream = connection.getInputStream();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                  BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-                // המרת התגובה ל-SheetDTO והצגת הגיליון על הגריד
                 SheetDTO sheetDTO = gson.fromJson(bufferedReader, SheetDTO.class);
                 mainGridComponentController.createInnerCellsInGrid(sheetDTO);
             }
@@ -1036,14 +963,11 @@ public class AppController {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            // המרת SheetData ל-JSON
             Gson gson = GSON_INSTANCE;
             String sheetDataJson = gson.toJson(selectedSheet);
 
-            // המרת JsonObject למחרוזת JSON
             byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
 
-            // שליחת הנתונים לשרת (SheetData כ-body)
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(postDataBytes);
             }

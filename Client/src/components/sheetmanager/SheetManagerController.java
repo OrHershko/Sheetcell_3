@@ -141,7 +141,6 @@ public class SheetManagerController {
     }
 
     public void createPermissionRequest(SheetData selectedSheet, String requestType) throws IOException {
-        // בניית URL עם query parameters באמצעות HttpUrl
         String finalUrl = HttpUrl
                 .parse(ADD_PERMISSION)
                 .newBuilder()
@@ -150,26 +149,21 @@ public class SheetManagerController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = createConnection(url);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(selectedSheet);
 
-        // המרת JsonObject למחרוזת JSON
         byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
 
-        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new IOException("Failed to update cell, response code: " + responseCode);
@@ -184,7 +178,6 @@ public class SheetManagerController {
     }
 
     public void handlePermissionRequest(PermissionData permission, String requestURL) throws IOException {
-        // בניית URL עם query parameters באמצעות HttpUrl
         String finalUrl = HttpUrl
                 .parse(requestURL)
                 .newBuilder()
@@ -193,26 +186,21 @@ public class SheetManagerController {
                 .build()
                 .toString();
 
-        // יצירת חיבור לשרת
         URL url = new URL(finalUrl);
         HttpURLConnection connection = createConnection(url);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setDoOutput(true);
 
-        // המרת SheetData ל-JSON
         Gson gson = GSON_INSTANCE;
         String sheetDataJson = gson.toJson(tablesAreaController.getSelectedSheet());
 
-        // המרת JsonObject למחרוזת JSON
         byte[] postDataBytes = sheetDataJson.getBytes(StandardCharsets.UTF_8);
 
-        // שליחת הנתונים לשרת (SheetData כ-body)
         try (OutputStream os = connection.getOutputStream()) {
             os.write(postDataBytes);
         }
 
-        // בדיקת קוד התגובה של השרת
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new IOException("Failed to update permission in sheet, response code: " + responseCode);

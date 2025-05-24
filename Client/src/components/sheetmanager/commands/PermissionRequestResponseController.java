@@ -70,18 +70,16 @@ public class PermissionRequestResponseController {
                 } else {
                     PermissionData permissionData = getTableView().getItems().get(getIndex());
 
-                    // הגדרת מצב ראשוני של CheckBox
                     checkBox.setSelected(isApproveColumn ? permissionData.isApproved() : permissionData.isRejected());
 
-                    // Listener לשינוי במצב ה-CheckBox
                     checkBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
                         if (isNowSelected) {
                             if (isApproveColumn) {
                                 permissionData.setApproved(true);
-                                permissionData.setRejected(false); // בטל את הסימון בעמודת Reject
+                                permissionData.setRejected(false); 
                             } else {
                                 permissionData.setRejected(true);
-                                permissionData.setApproved(false); // בטל את הסימון בעמודת Approve
+                                permissionData.setApproved(false); 
                             }
                             permissionTableView.refresh();
                         } else {

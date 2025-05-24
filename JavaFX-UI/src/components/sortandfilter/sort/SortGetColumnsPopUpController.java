@@ -53,7 +53,7 @@ public class SortGetColumnsPopUpController implements ColumnActionController {
         Insets padding = new Insets(10.0, 10.0, 10.0, 10.0);
         newHBox.setPadding(padding);
 
-        sortGetColumnsPopUp.getChildren().add(sortGetColumnsPopUp.getChildren().size() - 2, newHBox); // הוספתו לפני הכפתור "Sort"
+        sortGetColumnsPopUp.getChildren().add(sortGetColumnsPopUp.getChildren().size() - 2, newHBox); 
         Stage stage = (Stage) scrollPane.getScene().getWindow();
         stage.sizeToScene();
     }

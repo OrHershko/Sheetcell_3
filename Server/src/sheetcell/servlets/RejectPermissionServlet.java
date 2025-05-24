@@ -20,16 +20,13 @@ public class RejectPermissionServlet extends HttpServlet {
 
         EngineImpl engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
 
-        // קבלת הפרמטר של שם הטווח מה-query parameters
         String permissionType = request.getParameter("permissionType");
         String username = request.getParameter("username");
 
-        // קריאת ה-body (SheetData) כ-JSON
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
         SheetData sheetData = gson.fromJson(reader, SheetData.class);
 
-        // בדיקה אם כל הפרמטרים נשלחו
         if (permissionType == null || sheetData == null || username == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Missing parameters.");
@@ -37,14 +34,11 @@ public class RejectPermissionServlet extends HttpServlet {
         }
 
         try {
-            // קריאה לפונקציה שמוחקת את הטווח מהמנוע
             engine.rejectPermissionRequest(permissionType, username, sheetData);
 
-            // החזרת תגובת הצלחה
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write("Request declined successfully.");
         } catch (Exception e) {
-            // טיפול בשגיאות במידה ויש
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Failed to decline request: " + e.getMessage());
         }

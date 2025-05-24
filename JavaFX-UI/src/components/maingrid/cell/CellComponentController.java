@@ -4,7 +4,6 @@ package components.maingrid.cell;
 import components.bonuses.BonusesController;
 import dto.CellDTO;
 import javafx.animation.ScaleTransition;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.util.Duration;

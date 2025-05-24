@@ -16,10 +16,10 @@
          <left>
             <VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER">
                <children>
-                  <fx:include fx:id="commandsComponent" source="../components/commands/CommandsComponent.fxml" />
-                  <fx:include fx:id="rangesComponent" source="../components/ranges/Ranges.fxml" />
-                  <fx:include fx:id="sortAndFilterComponent" source="../components/sortandfilter/SortAndFilter.fxml" />
-                  <fx:include fx:id="graphComponent" source="../components/graph/GraphComponent.fxml" />
+                  <fx:include fx:id="commandsComponent" source="/components/commands/CommandsComponent.fxml" />
+                  <fx:include fx:id="rangesComponent" source="/components/ranges/Ranges.fxml" />
+                  <fx:include fx:id="sortAndFilterComponent" source="/components/sortandfilter/SortAndFilter.fxml" />
+                  <fx:include fx:id="graphComponent" source="/components/graph/GraphComponent.fxml" />
                </children>
                <BorderPane.margin>
                   <Insets top="40.0" />
@@ -55,7 +55,7 @@
                               <Font name="System Bold" size="12.0" />
                            </font>
                         </Label>
-                        <fx:include fx:id="bonusesComponent" source="../components/bonuses/Bonuses.fxml" />
+                        <fx:include fx:id="bonusesComponent" source="/components/bonuses/Bonuses.fxml" />
                         <Button fx:id="updateVersionButton" mnemonicParsing="false" onMouseClicked="#updateVersionOnClick" style="-fx-background-color: #c0f07d;" text="Update To The Latest Version">
                            <HBox.margin>
                               <Insets />
@@ -65,10 +65,10 @@
                   </HBox>
                   <HBox minHeight="-Infinity" minWidth="-Infinity">
                      <children>
-                        <fx:include fx:id="actionLineComponent" source="../components/actionline/ActionLine.fxml" />
+                        <fx:include fx:id="actionLineComponent" source="/components/actionline/ActionLine.fxml" />
                         <HBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
                            <children>
-                              <fx:include fx:id="versionsSelectorComponent" source="../components/versions/VersionsSelectorComponent.fxml" />
+                              <fx:include fx:id="versionsSelectorComponent" source="/components/versions/VersionsSelectorComponent.fxml" />
                            </children>
                            <HBox.margin>
                               <Insets />
@@ -88,7 +88,7 @@
          <center>
             <AnchorPane prefHeight="200.0" prefWidth="1054.0" BorderPane.alignment="TOP_LEFT">
                <children>
-                    <fx:include fx:id="mainGridComponent" source="../components/maingrid/MainGrid.fxml" BorderPane.alignment="TOP_LEFT" />
+                    <fx:include fx:id="mainGridComponent" source="/components/maingrid/MainGrid.fxml" BorderPane.alignment="TOP_LEFT" />
                </children>
             </AnchorPane>
          </center>

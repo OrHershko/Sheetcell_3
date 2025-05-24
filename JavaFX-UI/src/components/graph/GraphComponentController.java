@@ -1,6 +1,5 @@
 package components.graph;
 
-import components.sortandfilter.GetRangePopUpController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
