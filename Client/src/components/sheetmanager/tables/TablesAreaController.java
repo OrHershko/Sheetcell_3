@@ -260,7 +260,7 @@ public class TablesAreaController {
         };
 
         Thread thread = new Thread(task);
-        thread.setDaemon(true); // שימוש ב-Thread רקע
+        thread.setDaemon(true); 
         thread.start();
     }
 

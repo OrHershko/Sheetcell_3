@@ -14,7 +14,8 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -389,7 +390,6 @@ public class EngineImpl implements Engine {
     private void filterRowsList(Map<String, Set<String>> colToSelectedValues, List<Map.Entry<Integer, List<Cell>>> rowsList) {
 
         for (Map.Entry<String, Set<String>> colToValuesEntry : colToSelectedValues.entrySet()) {
-            // שימוש ב־Iterator כדי להסיר את השורות בצורה בטוחה
             Iterator<Map.Entry<Integer, List<Cell>>> rowIterator = rowsList.iterator();
             while (rowIterator.hasNext()) {
                 Map.Entry<Integer, List<Cell>> rowEntry = rowIterator.next();
@@ -397,7 +397,6 @@ public class EngineImpl implements Engine {
                         .filter(cell -> colToValuesEntry.getKey().equals(String.valueOf(cell.getIdentity().charAt(0))))
                         .noneMatch(cell -> colToValuesEntry.getValue().contains(cell.getEffectiveValue().getValue().toString()));
 
-                // אם השורה לא עומדת בתנאים, נסיר אותה באמצעות ה־Iterator
                 if (isRowRemoved) {
                     rowIterator.remove();
                 }

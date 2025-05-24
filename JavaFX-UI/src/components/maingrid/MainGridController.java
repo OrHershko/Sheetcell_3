@@ -4,16 +4,12 @@ import components.bonuses.BonusesController;
 import components.maingrid.cell.CellComponentController;
 import dto.CellDTO;
 import dto.SheetDTO;
-import impl.cell.Cell;
 import javafx.animation.FadeTransition;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import main.AppController;
 
@@ -187,12 +183,9 @@ public class MainGridController {
         rowConstraints.setPrefHeight(height);
 
         for (Node node : mainGrid.getChildren()) {
-            // קבלת אינדקס השורה של הרכיב הנוכחי
             Integer currentRowIndex = GridPane.getRowIndex(node);
 
-            // בדיקה אם הרכיב נמצא בשורה הנכונה והאם הוא מסוג Label
             if (currentRowIndex != null && currentRowIndex == rowIndex && node instanceof Label) {
-                // עדכון ה-prefHeight של ה-Label
                 ((Label) node).setPrefHeight(height);
             }
         }
@@ -205,12 +198,9 @@ public class MainGridController {
         columnConstraints.setPrefWidth(width);
 
         for (Node node : mainGrid.getChildren()) {
-            // קבלת אינדקס העמודה של הרכיב הנוכחי
             Integer currentColIndex = GridPane.getColumnIndex(node);
 
-            // בדיקה אם הרכיב נמצא בעמודה הנכונה והאם הוא מסוג Label
             if (currentColIndex != null && currentColIndex == colIndex && node instanceof Label) {
-                // עדכון ה-prefWidth של ה-Label
                 ((Label) node).setPrefWidth(width);
             }
         }

@@ -26,7 +26,6 @@ public class GetSheetPreviousVersionsDTOServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, IOException {
 
-        // קריאת SheetData מתוך ה-JSON שנשלח בבקשה
         BufferedReader reader = request.getReader();
         Gson gson = ServletUtils.getGson();
         SheetData sheetData = gson.fromJson(reader, SheetData.class);
@@ -38,20 +37,16 @@ public class GetSheetPreviousVersionsDTOServlet extends HttpServlet {
         }
 
         try {
-            // קבלת גרסאות קודמות עבור ה-Sheet
             Map<Integer, SheetDTO> previousVersions = convertDTOMapToSheetDTOMap(sheetData);
 
-            // המרת התוצאה ל-JSON
             String jsonResponse = gson.toJson(previousVersions);
 
-            // החזרת התוצאה ללקוח
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
             PrintWriter out = response.getWriter();
             out.write(jsonResponse);
 
         } catch (Exception e) {
-            // טיפול בשגיאות
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Failed to retrieve previous sheet versions: " + e.getMessage());
         }

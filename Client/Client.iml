@@ -46,6 +46,7 @@
     </orderEntry>
     <orderEntry type="module" module-name="DTO" />
     <orderEntry type="module" module-name="Engine" />
+    <orderEntry type="module" module-name="JavaFX-UI" />
     <orderEntry type="library" name="gson-2.1-javadoc" level="project" />
   </component>
 </module>

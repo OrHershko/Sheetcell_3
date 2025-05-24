@@ -16,7 +16,7 @@ public class CellValueAdapter extends TypeAdapter<CellValue> {
     @Override
     public void write(JsonWriter out, CellValue value) throws IOException {
         out.beginObject();
-        out.name("type").value(value.getClass().getSimpleName()); // שומר את סוג האובייקט
+        out.name("type").value(value.getClass().getSimpleName()); 
         out.name("value");
         if (value instanceof StringValue) {
             out.value(((StringValue) value).getValue());
@@ -31,11 +31,10 @@ public class CellValueAdapter extends TypeAdapter<CellValue> {
             out.name("arguments");
             out.beginArray();
             for (CellValue arg : functionValue.getArguments()) {
-                write(out, arg); // ריקורסיה על הארגומנטים
+                write(out, arg); 
             }
             out.endArray();
 
-            // כתיבה של effectiveValue
             out.name("effectiveValue");
             if (functionValue.getValue() instanceof String) {
                 out.value((String) functionValue.getValue());
@@ -102,15 +101,14 @@ public class CellValueAdapter extends TypeAdapter<CellValue> {
         while (in.hasNext()) {
             String name = in.nextName();
             if (name.equals("functionType")) {
-                functionType = in.nextString(); // קריאת סוג הפונקציה
+                functionType = in.nextString(); 
             } else if (name.equals("arguments")) {
                 in.beginArray();
                 while (in.hasNext()) {
-                    arguments.add(read(in)); // ריקורסיה על הארגומנטים
+                    arguments.add(read(in)); 
                 }
                 in.endArray();
             } else if (name.equals("effectiveValue")) {
-                // קריאת ה-effectiveValue
                 if (in.peek() == JsonToken.STRING) {
                     effectiveValue = in.nextString();
                 }
