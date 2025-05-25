@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<STL-Sheet name="Car Insurance" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="shtisel-v2.xsd">
+	<STL-Layout rows="9" columns="7">
+		<STL-Size column-width-units="150" rows-height-units="100"/>
+	</STL-Layout>
+	<STL-Ranges>
+		<STL-Range name="aig">
+			<STL-Boundaries from="C4" to="D4"/>
+		</STL-Range>
+		<STL-Range name="wobi">
+			<STL-Boundaries from="C5" to="D5"/>
+		</STL-Range>
+		<STL-Range name="shirbit">
+			<STL-Boundaries from="C6" to="D6"/>
+		</STL-Range>
+		<STL-Range name="mandatory">
+			<STL-Boundaries from="C4" to="C6"/>
+		</STL-Range>		
+		<STL-Range name="3rd">
+			<STL-Boundaries from="D4" to="D6"/>
+		</STL-Range>		
+		<STL-Range name="total">
+			<STL-Boundaries from="E4" to="E6"/>
+		</STL-Range>		
+	</STL-Ranges>
+	<STL-Cells>
+		<STL-Cell row="4" column="B">
+			<STL-Original-Value>AIG</STL-Original-Value>
+		</STL-Cell>
+		<STL-Cell row="5" column="B">
+			<STL-Original-Value>WOBI</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="6" column="B">
+			<STL-Original-Value>SHIRBIT</STL-Original-Value>
+		</STL-Cell>					
+		<STL-Cell row="3" column="C">
+			<STL-Original-Value>mandatory</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="4" column="C">
+			<STL-Original-Value>1000</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="5" column="C">
+			<STL-Original-Value>900</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="6" column="C">
+			<STL-Original-Value>5555</STL-Original-Value>
+		</STL-Cell>	
+		<STL-Cell row="7" column="C">
+			<STL-Original-Value>{AVERAGE,mandatory}</STL-Original-Value>
+		</STL-Cell>
+		<STL-Cell row="3" column="D">
+			<STL-Original-Value>3rd party</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="4" column="D">
+			<STL-Original-Value>800</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="5" column="D">
+			<STL-Original-Value>1100</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="6" column="D">
+			<STL-Original-Value>4444</STL-Original-Value>
+		</STL-Cell>			
+		<STL-Cell row="7" column="D">
+			<STL-Original-Value>{AVERAGE,3rd}</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="3" column="E">
+			<STL-Original-Value>Total</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="4" column="E">
+			<STL-Original-Value>{SUM,aig}</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="5" column="E">
+			<STL-Original-Value>{SUM,wobi}</STL-Original-Value>
+		</STL-Cell>		
+		<STL-Cell row="6" column="E">
+			<STL-Original-Value>{SUM,shirbit}</STL-Original-Value>
+		</STL-Cell>	
+		<STL-Cell row="7" column="E">
+			<STL-Original-Value>{AVERAGE,total}</STL-Original-Value>
+		</STL-Cell>			
+	</STL-Cells>
+</STL-Sheet>

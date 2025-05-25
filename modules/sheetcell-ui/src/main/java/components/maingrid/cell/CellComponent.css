@@ -1,0 +1,52 @@
+.grid-cell {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+}
+
+/* Border changes to white when dark mode is active */
+.dark-mode .grid-cell {
+    -fx-border-color: #c4c4c4;
+    -fx-border-width: 1px;
+}
+
+.grid-cell.edge {
+    -fx-border-color: grey;
+    -fx-border-width: 1px;
+}
+
+.grid-cell.DependentOn {
+    -fx-background-color: lightblue;
+}
+
+.grid-cell.Influencing {
+    -fx-background-color: #a6e5a6;
+}
+
+.marked-cell {
+    -fx-background-color: #efefc4;
+}
+
+.align-left {
+    -fx-alignment: center-left;
+}
+
+.align-center {
+    -fx-alignment: center;
+}
+
+.align-right {
+    -fx-alignment: center-right;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #000000;
+    -fx-font-family: "Verdana";
+    -fx-font-size: 14px;
+}
+
+.dark-mode .label {
+    -fx-text-fill: #c4c4c4;
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 16px;
+}

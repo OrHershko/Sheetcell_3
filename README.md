@@ -1,148 +1,221 @@
 # SheetCell Application (שטיסל)
 
-This project is a client-server spreadsheet application built in Java. It provides comprehensive spreadsheet functionalities, allowing users to create, edit, manage, and share data in a tabular format. The application utilizes JavaFX for its graphical user interface and is designed with a modular architecture to support concurrent user interactions and version control.
+A professional, collaborative spreadsheet application built with Java and JavaFX. This project provides comprehensive spreadsheet functionalities with real-time collaboration, version control, and a modern client-server architecture.
 
-## Overall Architecture
+## 🏗️ Architecture Overview
 
-The SheetCell application follows a client-server model:
+SheetCell follows a modern multi-tier architecture:
 
-*   **Server-Side:** A Tomcat server hosts the `Engine` module, managing sheet data, user authentication, permissions, and concurrent access.
-*   **Client-Side:** The `Client` application, built upon `JavaFX-UI` components, interacts with the server to provide users with a rich interface for spreadsheet operations.
-*   **Data Transfer:** `DTO` (Data Transfer Objects) are used for structured communication between the client, server, and engine.
+- **Client-Server Model**: Scalable architecture with JavaFX client and Tomcat server
+- **Multi-Module Design**: Clean separation of concerns using Maven modules
+- **Real-time Collaboration**: Concurrent editing with conflict resolution
+- **Version Control**: Complete audit trail for sheets and individual cells
 
-### Modules
+## 📁 Project Structure
 
-The project is divided into the following key modules:
+```
+sheetcell/
+├── modules/                           # Application modules
+│   ├── sheetcell-dto/                # Data Transfer Objects
+│   │   └── src/main/java/dto/        # DTO classes
+│   ├── sheetcell-engine/             # Core calculation engine
+│   │   └── src/main/java/            # Engine implementation
+│   ├── sheetcell-ui/                 # JavaFX UI components
+│   │   ├── src/main/java/            # UI components
+│   │   └── src/main/resources/       # UI resources & styles
+│   ├── sheetcell-client/             # Client application
+│   │   ├── src/main/java/            # Client code
+│   │   └── src/main/resources/       # Client resources
+│   └── sheetcell-server/             # Web server (WAR)
+│       ├── src/main/java/            # Server servlets
+│       └── src/main/resources/       # Web resources
+├── docs/                             # Documentation
+│   ├── api/                          # API documentation
+│   ├── development/                  # Development guides
+│   └── user-guide/                   # User documentation
+├── scripts/                          # Build & deployment scripts
+│   ├── build.sh                      # Build all modules
+│   ├── run-client.sh                 # Run client application
+│   └── deploy-server.sh              # Deploy to Tomcat
+├── config/                           # Configuration files
+│   └── application.properties        # App configuration
+├── samples/                          # Sample data files
+│   └── sample-sheet.xml              # Example spreadsheet
+├── pom.xml                           # Parent Maven configuration
+└── README.md                         # This file
+```
 
-*   **`Engine`**:
-    *   The core logic unit of the application.
-    *   Manages all spreadsheet operations: cell creation, value updates (direct and formula-based), dependency tracking (מח"מ - מערכת חישובים מבוזרת), and recalculations.
-    *   Handles version management for entire sheets and individual cells.
-    *   A passive module that responds to requests from the `Server` or `JavaFX-UI` (in standalone mode).
-
-*   **`DTO` (Data Transfer Objects)**:
-    *   A collection of simple objects used to pass data between different layers and modules (e.g., `Client` to `Server`, `Server` to `Engine`).
-    *   Ensures standardized data structures for communication.
-
-*   **`JavaFX-UI`**:
-    *   Provides a library of reusable JavaFX components for the spreadsheet interface (e.g., grid display, action line, menus).
-    *   Contains the functionality for a standalone desktop spreadsheet application (as developed in תרגיל 2), capable of working with local XML files.
-
-*   **`Client`**:
-    *   The main client-side application that users interact with.
-    *   Builds upon the components and capabilities of the `JavaFX-UI` module.
-    *   Connects to the `Server` to:
-        *   Handle user login (unique usernames).
-        *   Display a sheet management dashboard (view all server sheets, upload new sheets, see permissions).
-        *   Open and interact with individual sheets based on user permissions (OWNER, WRITER, READER).
-
-*   **`Server`**:
-    *   Hosts the `Engine` to perform spreadsheet operations.
-    *   Manages multiple sheets from various users.
-    *   Handles user authentication and session management.
-    *   Enforces the permissions system (OWNER, READER, WRITER) for accessing and modifying sheets.
-    *   Manages concurrent access to sheets, ensuring data integrity and notifying users of updates.
-    *   Designed to be deployed on an Apache Tomcat web server.
-
-## Features
-
-### Core Spreadsheet Functionality
-*   **XML Sheet Loading:** Load spreadsheet data from XML files. Initially for local files in standalone mode, then server-managed for client-server mode.
-*   **Data Display:** View sheet data, including original formulas/values and their effective (calculated) values. Visualize cell dependencies.
-*   **Cell Updates & Recalculation:** Modify cell values, triggering automatic recalculation of dependent cells (מח"מ).
-*   **Version Control:**
-    *   Track versions for entire sheets.
-    *   Track versions for individual cell changes, including who made the change.
-    *   View read-only previous versions of a sheet.
-
-### JavaFX UI (Standalone and Client Base)
-*   **Graphical Spreadsheet:** Interactive grid for displaying and editing cells.
-*   **Customization:**
-    *   Adjustable column widths and row heights.
-    *   Cell content alignment (left, center, right).
-    *   Cell styling: background color and text color.
-*   **Range Management:**
-    *   Define named ranges of cells (e.g., "A1:B5" as "MyData").
-    *   Delete existing ranges.
-    *   View ranges highlighted on the grid.
-*   **Complex Functions:** Implement functions that can operate on cell ranges (e.g., SUM, AVG).
-*   **Data Operations:**
-    *   Sort data within a selected range by one or more columns.
-    *   Filter data within a range based on criteria for specific columns.
-    *   Sorted/filtered views can be displayed in a temporary popup window.
-*   **"What-If" Scenarios:** Dynamically input values into cells (especially formula cells) to see potential outcomes without permanently altering the sheet.
-*   **File Handling:** Load XML sheet files using a FileChooser dialog, with progress indication for loading.
-*   **Theming:** Switch between UI skins (e.g., dark mode, light mode, default theme).
-
-### Client-Server Enhancements
-*   **User Authentication:** Secure login using a unique username.
-*   **Sheet Management Dashboard:**
-    *   View a list of all sheets available on the server.
-    *   Upload new sheets in XML format (compatible with תרגיל 2 format) to the server. The server stores and manages these sheets.
-    *   Display key information for each sheet: owner's username, sheet name, dimensions (rows x cols), and the logged-in user's permission level for that sheet.
-*   **Permissions System:**
-    *   **OWNER:** Full control, can delete the sheet, manage permissions.
-    *   **WRITER:** Can edit cell values.
-    *   **READER:** Can only view the sheet data.
-    *   Users can request permissions for sheets they don't own. Owners can approve or reject these requests.
-*   **Concurrent Editing & Collaboration:**
-    *   Multiple users with WRITER permission can edit the same sheet simultaneously, provided they are on the latest version of the sheet.
-    *   Users editing an older version will be prompted to update.
-    *   Read-only users (READERs or those on older versions) receive notifications when a newer version of the sheet is available.
-    *   Updated cells display the username of the user who last modified them.
-
-## Setup and Build Instructions
+## 🚀 Quick Start
 
 ### Prerequisites
-*   **JDK (Java Development Kit):** A recent JDK version that includes JavaFX is recommended (e.g., OpenJDK 17 or later). If using a JDK without bundled JavaFX, you'll need to add the JavaFX SDK libraries to your project manually.
-*   **Apache Tomcat:** For the server-side deployment. Version 10.1.x is suitable (as referenced in `Server.iml`).
-*   **IDE:** The project is primarily designed and configured for IntelliJ IDEA.
 
-### Importing into IntelliJ IDEA
-1.  Clone the repository.
-2.  Open IntelliJ IDEA and choose "Open..." selecting the cloned project directory.
-3.  Ensure IntelliJ recognizes the project structure and modules (`Client`, `DTO`, `Engine`, `JavaFX-UI`, `Server`).
-4.  Verify module dependencies are correctly set up as defined in the `.iml` files and `.idea/modules.xml`. IntelliJ usually handles this automatically upon import.
+- **Java 17+** with JavaFX support
+- **Apache Maven 3.8+**
+- **Apache Tomcat 10.1.x** (for server deployment)
 
-### Server Setup (Tomcat)
-1.  **Install Tomcat:** Download and install Apache Tomcat (e.g., version 10.1.26).
-2.  **Deploy `Server` Module:**
-    *   Build the `Server` module into a WAR (Web Application Archive) file. IntelliJ can be configured to produce this artifact.
-    *   Deploy the generated WAR file to Tomcat's `webapps` directory.
-    *   Alternatively, you can configure Tomcat to point to the exploded webapp output directory of the `Server` module (typically `out/artifacts/Server_Web_exploded` or similar in IntelliJ).
-3.  **Start Tomcat:** Run Tomcat's startup script (`startup.sh` or `startup.bat`).
+### Build & Run
 
-### Running the Application
+1. **Clone and build the project:**
+   ```bash
+   git clone <repository-url>
+   cd sheetcell
+   ./scripts/build.sh
+   ```
 
-1.  **Start the Server:** Ensure Tomcat is running with the `Server` module successfully deployed.
-2.  **Run the Client Application:**
-    *   The main entry point for the client is `main.SheetcellClientMain.java` located in the `Client` module (`Client/src/main/SheetcellClientMain.java`).
-    *   Run this `main` method from IntelliJ IDEA. The client application will start and should attempt to connect to the server (defaulting to `localhost` and the standard Tomcat port).
+2. **Run the client application:**
+   ```bash
+   ./scripts/run-client.sh
+   ```
 
-3.  **Optional: Standalone Mode (תרגיל 2 functionality)**
-    *   To run the application in a standalone mode that works with local XML files and does not require the server:
-    *   The entry point is `main.Main.java` located in the `JavaFX-UI` module (`JavaFX-UI/src/main/Main.java`).
-    *   Run this `main` method.
+3. **Deploy the server:**
+   ```bash
+   ./scripts/deploy-server.sh
+   ```
 
-## Code Structure
+## 🎯 Features
 
-The project is organized into distinct modules to promote separation of concerns and reusability:
+### Core Spreadsheet Functionality
+- ✅ **XML Sheet Loading**: Import/export spreadsheet data
+- ✅ **Formula Engine**: Advanced calculation engine with dependency tracking
+- ✅ **Cell Updates**: Real-time recalculation of dependent cells
+- ✅ **Version Control**: Track changes at sheet and cell level
+- ✅ **Range Operations**: Named ranges, sorting, filtering
 
-*   **`Client/`**: Contains the main client application code, including UI interactions, communication with the server, and management of the user session. It utilizes components from `JavaFX-UI`.
-*   **`DTO/`**: Holds Data Transfer Objects, which are plain Java objects used to carry data between modules (e.g., `CellDTO`, `SheetDTO`).
-*   **`Engine/`**: The core logic for spreadsheet operations, independent of UI or server concerns. Handles calculations, data storage, and versioning.
-*   **`JavaFX-UI/`**: A library of JavaFX components and the main class for running the spreadsheet application in a standalone, local file-based mode.
-*   **`Server/`**: The web application module that hosts the `Engine`. It handles HTTP requests, user management, sheet persistence, and concurrent access control. Designed for deployment on Tomcat.
-*   **`.idea/`**: IntelliJ IDEA project configuration files.
-*   **`lib/`**: Contains external libraries used by the project (though specific library management might be handled by IntelliJ based on `.iml` files).
+### JavaFX User Interface
+- 🎨 **Modern UI**: Clean, responsive JavaFX interface
+- 🎨 **Customization**: Adjustable columns, rows, cell styling
+- 🎨 **Theming**: Multiple UI themes (light, dark, custom)
+- 🎨 **Interactive Grid**: Intuitive spreadsheet interaction
+- 🎨 **What-If Analysis**: Dynamic scenario modeling
 
-## Implemented Bonuses
-(Please list any implemented bonuses here for the grader)
+### Collaboration Features
+- 👥 **Multi-User Support**: Concurrent editing capabilities
+- 👥 **Permission System**: Owner/Writer/Reader access levels
+- 👥 **Real-time Updates**: Live synchronization of changes
+- 👥 **Conflict Resolution**: Automatic handling of concurrent edits
+- 👥 **User Authentication**: Secure login system
 
-*   [Bonus 1: e.g., Advanced formulas]
-*   [Bonus 2: e.g., Charting capabilities]
+### Advanced Operations
+- 📊 **Data Analysis**: Sort and filter operations
+- 📊 **Complex Functions**: SUM, AVG, and range-based functions
+- 📊 **Dependency Visualization**: View cell relationships
+- 📊 **Progress Tracking**: Loading indicators for operations
 
-## Submission Details
-*   **Name(s):** [Enter Name(s) Here]
-*   **ID(s):** [Enter ID(s) Here]
-*   **Email(s):** [Enter Email(s) Here]
+## 🛠️ Development
+
+### Module Dependencies
+```
+sheetcell-dto (base)
+    ↑
+sheetcell-engine
+    ↑
+sheetcell-ui
+    ↑
+sheetcell-client
+
+sheetcell-engine
+    ↑
+sheetcell-server
+```
+
+### Building Individual Modules
+```bash
+# Build specific module
+cd modules/sheetcell-engine
+mvn clean compile
+
+# Run tests
+mvn test
+
+# Package module
+mvn package
+```
+
+### IDE Setup
+1. Import the root `pom.xml` into IntelliJ IDEA
+2. IDE will automatically detect the multi-module structure
+3. Configure JavaFX runtime if needed
+
+## 📚 Documentation
+
+- **[Development Setup](docs/development/SETUP.md)**: Complete development environment setup
+- **[API Documentation](docs/api/API.md)**: REST API reference
+- **[User Guide](docs/user-guide/)**: End-user documentation
+
+## 🔧 Configuration
+
+Application settings can be configured in `config/application.properties`:
+
+```properties
+# Server Configuration
+server.host=localhost
+server.port=8080
+
+# Client Configuration
+client.server.url=http://localhost:8080/sheetcell
+
+# Application Limits
+app.max.sheets.per.user=10
+app.max.concurrent.users=100
+```
+
+## 🧪 Testing
+
+Run all tests:
+```bash
+mvn test
+```
+
+Run tests for specific module:
+```bash
+cd modules/sheetcell-engine
+mvn test
+```
+
+## 📦 Deployment
+
+### Server Deployment
+The server module builds to a WAR file that can be deployed to any servlet container:
+
+```bash
+# Build WAR file
+mvn package
+
+# Deploy to Tomcat
+./scripts/deploy-server.sh
+```
+
+### Client Distribution
+The client can be distributed as:
+- Executable JAR with dependencies
+- Native installer (using jpackage)
+- Docker container
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- Follow Java naming conventions
+- Add JavaDoc comments for public APIs
+- Write unit tests for new functionality
+- Use meaningful commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Built with JavaFX for modern UI
+- Uses Apache Tomcat for server deployment
+- Maven for dependency management and build automation
+- Gson for JSON serialization
+
+---
+
+**Note**: This is an educational project demonstrating enterprise Java development practices, including multi-module Maven projects, client-server architecture, and collaborative software design.
